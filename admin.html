@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LunaBloom • Royal Cloud Admin</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -31,6 +31,8 @@
             color: var(--text-light);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .sidebar {
@@ -92,7 +94,6 @@
             z-index: 110;
         }
 
-        /* Header fix */
         .header-section {
             margin-bottom: 32px;
         }
@@ -182,12 +183,11 @@
             color: white;
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.88);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(10px);
             display: none;
             align-items: center;
             justify-content: center;
@@ -196,23 +196,48 @@
             transition: opacity 0.4s ease;
         }
 
-        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active { 
+            display: flex; 
+            opacity: 1; 
+        }
 
         .modal-box {
             background: #181818;
-            width: min(92%, 540px);
-            padding: 28px 22px;
+            width: min(92vw, 560px);
+            max-height: 92vh;
             border-radius: 20px;
-            border: 1px solid rgba(197,160,89,0.22);
+            border: 1px solid rgba(197,160,89,0.25);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            overflow: hidden;
             transform: scale(0.92) translateY(30px);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-overlay.active .modal-box {
             transform: scale(1) translateY(0);
         }
 
-        .form-group { margin-bottom: 18px; }
+        .modal-content {
+            padding: 28px 24px 24px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #222;
+            background: #141414;
+            display: flex;
+            gap: 14px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .form-group { margin-bottom: 20px; }
         .form-group label { 
             display: block; 
             margin-bottom: 8px; 
@@ -220,7 +245,8 @@
             font-size: 0.9rem; 
         }
 
-        .form-group input, .form-group select {
+        .form-group input, 
+        .form-group select {
             width: 100%;
             padding: 13px 14px;
             background: #222;
@@ -259,16 +285,12 @@
             border: 1px solid var(--gold);
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .main-content { padding: 20px 18px; }
-        }
-
         @media (max-width: 768px) {
             .menu-toggle { display: block; }
 
             .sidebar {
                 transform: translateX(-100%);
+                width: 80vw;
             }
 
             .sidebar.active {
@@ -277,37 +299,43 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 70px 16px 24px;
-            }
-
-            .header-flex {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: nowrap;
-                gap: 12px;
+                padding: 70px 16px 100px; /* pastdan joy qoldiramiz */
             }
 
             h1 {
-                font-size: 1.55rem;
-                margin: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 58%;
+                font-size: 1.6rem;
+                max-width: 60%;
             }
 
             .btn-gold {
                 padding: 11px 20px;
                 font-size: 0.92rem;
-                min-width: 135px;
+                min-width: 140px;
+            }
+
+            .modal-box {
+                width: 94vw;
+                max-height: 90vh;
+            }
+
+            .modal-content {
+                padding: 24px 20px;
+            }
+
+            .modal-footer {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .modal-footer button {
+                width: 100%;
             }
         }
 
         @media (max-width: 480px) {
-            .sidebar { width: 82%; }
-            h1 { font-size: 1.35rem; max-width: 52%; }
-            .btn-gold { padding: 10px 16px; font-size: 0.88rem; min-width: 120px; }
+            h1 { font-size: 1.4rem; max-width: 55%; }
+            .btn-gold { min-width: 120px; padding: 10px 16px; }
             .product-img { width: 42px; height: 42px; }
         }
     </style>
@@ -351,43 +379,44 @@
         </div>
     </main>
 
-    <!-- Modal (qolgan qismi o'zgarmagan) -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
-            <h2 style="font-family: 'Cinzel'; margin-bottom: 28px; color: var(--gold);">Yangi Guldasta</h2>
-            
-            <div class="form-group">
-                <label>Guldasta nomi</label>
-                <input type="text" id="pName" placeholder="Masalan: Tungi Pari">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+            <div class="modal-content">
+                <h2 style="font-family: 'Cinzel'; margin-bottom: 28px; color: var(--gold);">Yangi Guldasta</h2>
+                
                 <div class="form-group">
-                    <label>Kategoriya</label>
-                    <select id="pCat">
-                        <option value="roses">Atirgullar</option>
-                        <option value="premium">Premium</option>
-                        <option value="boxes">Qutilarda</option>
-                        <option value="wedding">To'ylar uchun</option>
-                    </select>
+                    <label>Guldasta nomi</label>
+                    <input type="text" id="pName" placeholder="Masalan: Tungi Pari">
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+                    <div class="form-group">
+                        <label>Kategoriya</label>
+                        <select id="pCat">
+                            <option value="roses">Atirgullar</option>
+                            <option value="premium">Premium</option>
+                            <option value="boxes">Qutilarda</option>
+                            <option value="wedding">To'ylar uchun</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Narxi (so'm)</label>
+                        <input type="number" id="pPrice" placeholder="500000" min="0">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label>Narxi (so'm)</label>
-                    <input type="number" id="pPrice" placeholder="500000" min="0">
+                    <label>Rasmlarni yuklash (maks. 5 ta)</label>
+                    <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-images" style="font-size: 30px; color: var(--gold); margin-bottom: 8px;"></i>
+                        <p style="font-size: 0.85rem; color: #888;">Rasmlarni tanlang yoki bu yerga sudrab tashlang</p>
+                    </div>
+                    <input type="file" id="fileInput" hidden multiple accept="image/*" onchange="previewImages(this)">
+                    <div class="preview-grid" id="previewGrid"></div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Rasmlarni yuklash (maks. 5 ta)</label>
-                <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
-                    <i class="fa-solid fa-images" style="font-size: 30px; color: var(--gold); margin-bottom: 8px;"></i>
-                    <p style="font-size: 0.85rem; color: #888;">Rasmlarni tanlang yoki bu yerga sudrab tashlang</p>
-                </div>
-                <input type="file" id="fileInput" hidden multiple accept="image/*" onchange="previewImages(this)">
-                <div class="preview-grid" id="previewGrid"></div>
-            </div>
-
-            <div style="display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap;">
+            <div class="modal-footer">
                 <button id="saveBtn" class="btn-gold" style="flex: 2;" onclick="saveNewProduct()">Saqlash</button>
                 <button class="btn-gold" style="flex: 1; background: #2a2a2a; box-shadow: none;" onclick="toggleModal(false)">Yopish</button>
             </div>
@@ -425,11 +454,13 @@
             if (open) {
                 modal.style.display = 'flex';
                 setTimeout(() => modal.classList.add('active'), 10);
+                document.body.style.overflow = 'hidden';
             } else {
                 modal.classList.remove('active');
                 setTimeout(() => {
                     modal.style.display = 'none';
                     resetForm();
+                    document.body.style.overflow = '';
                     if (window.innerWidth <= 768) sidebar.classList.remove('active');
                 }, 400);
             }
