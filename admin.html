@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LunaBloom • Royal Cloud Admin</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
 
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
@@ -33,6 +33,166 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--dark-grey);
+            border: 1px solid rgba(197,160,89,0.25);
+            border-radius: 24px;
+            padding: 48px 40px;
+            width: min(94vw, 440px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .login-logo {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+        }
+
+        .login-input-group {
+            margin-bottom: 24px;
+        }
+
+        .login-input-group label {
+            display: block;
+            color: var(--gold);
+            font-size: 0.88rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+        }
+
+        .login-input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            opacity: 0.6;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px 16px 15px 46px;
+            background: #222;
+            border: 1px solid #2f2f2f;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: #252525;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(197,160,89,0.2);
+            margin-top: 8px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(197,160,89,0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            background: rgba(255,77,77,0.15);
+            border: 1px solid rgba(255,77,77,0.3);
+            color: var(--accent-red);
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        .success-msg {
+            background: rgba(76,175,80,0.15);
+            border: 1px solid rgba(76,175,80,0.3);
+            color: #4caf50;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+            display: none;
+        }
+
+        .success-msg.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .setup-note {
+            background: rgba(197,160,89,0.1);
+            border: 1px solid rgba(197,160,89,0.25);
+            color: var(--gold);
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.82rem;
+            text-align: center;
+            display: none;
+        }
+
+        #adminPanel {
+            display: none;
         }
 
         .sidebar {
@@ -71,6 +231,26 @@
         .nav-link:hover, .nav-link.active {
             background: rgba(197,160,89,0.1);
             color: var(--gold);
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,77,77,0.12);
+            color: var(--accent-red);
+            border: 1px solid rgba(255,77,77,0.2);
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--accent-red);
+            color: white;
         }
 
         .main-content {
@@ -299,7 +479,7 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 70px 16px 100px; /* pastdan joy qoldiramiz */
+                padding: 70px 16px 100px;
             }
 
             h1 {
@@ -331,6 +511,10 @@
             .modal-footer button {
                 width: 100%;
             }
+
+            .login-box {
+                padding: 36px 28px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -342,42 +526,87 @@
 </head>
 <body>
 
-    <button class="menu-toggle" id="menuToggle">
-        <i class="fa-solid fa-bars"></i>
-    </button>
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <div class="login-logo">LUNABLOOM</div>
+            <div class="login-subtitle">Admin Paneliga Kirish</div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+            <div class="success-msg" id="successMsg"></div>
 
-    <nav class="sidebar" id="sidebar">
-        <h2>LUNABLOOM</h2>
-        <a href="#" class="nav-link active"><i class="fa-solid fa-house-chimney-window"></i> Dashboard</a>
-        <a href="index.html" class="nav-link"><i class="fa-solid fa-shop"></i> Saytni ko'rish</a>
-        <div style="position:absolute; bottom:24px; left:20px; right:20px; text-align:center; font-size:0.78rem; color:var(--gold); opacity:0.55;">
-            <i class="fa-solid fa-cloud"></i> CLOUD DATABASE CONNECTED
-        </div>
-    </nav>
+            <form onsubmit="handleLogin(event)">
+                <div class="login-input-group">
+                    <label>Login</label>
+                    <div class="login-input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" class="login-input" id="loginUsername" placeholder="admin" required autocomplete="username">
+                    </div>
+                </div>
 
-    <main class="main-content">
-        <div class="header-section">
-            <div class="header-flex">
-                <h1>Gullar <span style="font-weight:300; color:var(--gold);">Ombori</span></h1>
-                <button class="btn-gold" onclick="toggleModal(true)">+ Guldasta qo'shish</button>
+                <div class="login-input-group">
+                    <label>Parol</label>
+                    <div class="login-input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" class="login-input" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                </div>
+
+
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Kirish
+                </button>
+            </form>
+
+            <div style="margin-top: 28px; text-align: center; font-size: 0.82rem; color: #666;">
+                <i class="fa-solid fa-shield-halved"></i> Himoyalangan kirish
             </div>
         </div>
+    </div>
 
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rasm</th>
-                        <th>Nomi</th>
-                        <th>Kategoriya</th>
-                        <th>Narxi</th>
-                        <th>Amallar</th>
-                    </tr>
-                </thead>
-                <tbody id="pTableBody"></tbody>
-            </table>
-        </div>
-    </main>
+    <div id="adminPanel">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="sidebar" id="sidebar">
+            <h2>LUNABLOOM</h2>
+            <a href="#" class="nav-link active"><i class="fa-solid fa-house-chimney-window"></i> Dashboard</a>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-shop"></i> Saytni ko'rish</a>
+            
+            <button class="logout-btn" onclick="handleLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i> Chiqish
+            </button>
+
+            <div style="position:absolute; bottom:24px; left:20px; right:20px; text-align:center; font-size:0.78rem; color:var(--gold); opacity:0.55;">
+                <i class="fa-solid fa-cloud"></i> CLOUD DATABASE CONNECTED
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="header-section">
+                <div class="header-flex">
+                    <h1>Gullar <span style="font-weight:300; color:var(--gold);">Ombori</span></h1>
+                    <button class="btn-gold" onclick="toggleModal(true)">+ Guldasta qo'shish</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rasm</th>
+                            <th>Nomi</th>
+                            <th>Kategoriya</th>
+                            <th>Narxi</th>
+                            <th>Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pTableBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
@@ -438,7 +667,101 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
         let currentImages = [];
+        let isLoggedIn = false;
+
+        const ADMIN_USERNAME = "admin";
+        const ADMIN_PASSWORD = "lunabloom2025";
+
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        window.onload = function() {
+            checkAuthStatus();
+        };
+
+        function checkAuthStatus() {
+            const sessionToken = sessionStorage.getItem('lunaBloomAdminToken');
+            if (sessionToken === 'logged_in_' + ADMIN_USERNAME) {
+                showAdminPanel();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            if (!username || !password) {
+                showError('Login va parol to\'ldirilishi shart!');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Tekshirilmoqda...';
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+
+            setTimeout(() => {
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    const sessionToken = 'logged_in_' + ADMIN_USERNAME;
+                    sessionStorage.setItem('lunaBloomAdminToken', sessionToken);
+                    
+                    successMsg.textContent = 'Xush kelibsiz!';
+                    successMsg.classList.add('show');
+                    
+                    setTimeout(() => {
+                        showAdminPanel();
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Kirish';
+                    }, 800);
+                } else {
+                    showError('Login yoki parol noto\'g\'ri!');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Kirish';
+                }
+            }, 600);
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+            setTimeout(() => errorMsg.classList.remove('show'), 5000);
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            isLoggedIn = true;
+            listenToProducts();
+        }
+
+        function handleLogout() {
+            if (confirm('Chiqishni tasdiqlaysizmi?')) {
+                sessionStorage.removeItem('lunaBloomAdminToken');
+                isLoggedIn = false;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            }
+        }
 
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
@@ -485,6 +808,11 @@
         }
 
         function saveNewProduct() {
+            if (!isLoggedIn) {
+                alert('Avval tizimga kiring!');
+                return;
+            }
+
             const name  = document.getElementById('pName').value.trim();
             const cat   = document.getElementById('pCat').value;
             const price = document.getElementById('pPrice').value;
@@ -521,7 +849,11 @@
         }
 
         function deleteP(id) {
-            if (!confirm("O‘chirishni tasdiqlaysizmi?")) return;
+            if (!isLoggedIn) {
+                alert('Avval tizimga kiring!');
+                return;
+            }
+            if (!confirm("O'chirishni tasdiqlaysizmi?")) return;
             db.ref('flowers/' + id).remove().catch(err => alert(err.message));
         }
 
@@ -555,8 +887,6 @@
             document.getElementById('fileInput').value = '';
             currentImages = [];
         }
-
-        window.onload = listenToProducts;
     </script>
 </body>
 </html>
