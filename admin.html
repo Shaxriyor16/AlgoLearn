@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="utf-8">
@@ -20,7 +20,7 @@
             --dark-grey: #161616;
             --text-light: #e0e0e0;
             --accent-red: #ff4d4d;
-            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 0.35s ease;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,7 +29,6 @@
             font-family: 'Montserrat', sans-serif;
             background: var(--black);
             color: var(--text-light);
-            display: flex;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -37,11 +36,13 @@
         .sidebar {
             width: 280px;
             background: var(--dark-grey);
-            border-right: 1px solid rgba(197, 160, 89, 0.1);
+            border-right: 1px solid rgba(197,160,89,0.12);
             padding: 40px 20px;
             position: fixed;
             height: 100vh;
             z-index: 100;
+            transition: transform var(--transition);
+            transform: translateX(0);
         }
 
         .sidebar h2 {
@@ -54,99 +55,284 @@
 
         .nav-link {
             display: flex;
-            align-items: center; gap: 15px; color: #888; text-decoration: none;
-            padding: 15px 20px; border-radius: 12px; transition: var(--transition);
-            margin-bottom: 10px; font-weight: 500;
+            align-items: center;
+            gap: 15px;
+            color: #aaa;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 10px;
+            transition: var(--transition);
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
-        .nav-link:hover, .nav-link.active { background: rgba(197, 160, 89, 0.08); color: var(--gold); }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(197,160,89,0.1);
+            color: var(--gold);
+        }
 
-        .main-content { margin-left: 280px; padding: 60px; width: 100%; }
+        .main-content {
+            margin-left: 280px;
+            padding: 24px 28px;
+            min-height: 100vh;
+            transition: margin-left var(--transition);
+        }
 
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 26px;
+            cursor: pointer;
+            padding: 12px;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 110;
+        }
+
+        /* Header fix */
+        .header-section {
+            margin-bottom: 32px;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            font-weight: 600;
+        }
 
         .btn-gold {
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: white; border: none; padding: 14px 30px; border-radius: 12px;
-            cursor: pointer; font-weight: 600; box-shadow: 0 10px 20px rgba(197, 160, 89, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(197,160,89,0.18);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(197,160,89,0.28);
+        }
+
+        .table-card {
+            background: var(--dark-grey);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.04);
+            overflow-x: auto;
+        }
+
+        table { 
+            width: 100%; 
+            min-width: 620px;
+            border-collapse: collapse; 
+        }
+
+        th { 
+            text-align: left; 
+            padding: 14px 12px; 
+            color: var(--gold); 
+            font-size: 0.82rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #222; 
+            white-space: nowrap;
+        }
+
+        td { 
+            padding: 14px 12px; 
+            border-bottom: 1px solid #1f1f1f; 
+        }
+
+        .product-img { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+            border: 1px solid rgba(197,160,89,0.15); 
+        }
+
+        .action-btn {
+            background: rgba(255,77,77,0.12);
+            color: var(--accent-red);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
             transition: var(--transition);
         }
 
-        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(197, 160, 89, 0.3); }
-
-        .table-card { background: var(--dark-grey); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.03); }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 20px; color: var(--gold); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid #222; }
-        td { padding: 20px; border-bottom: 1px solid #1f1f1f; }
-
-        .product-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(197,160,89,0.2); }
-
-        .action-btn {
-            background: rgba(255, 77, 77, 0.1); color: var(--accent-red);
-            border: none; width: 40px; height: 40px; border-radius: 10px;
-            cursor: pointer; transition: 0.3s;
+        .action-btn:hover {
+            background: var(--accent-red);
+            color: white;
         }
-
-        .action-btn:hover { background: var(--accent-red); color: white; }
 
         /* Modal */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; transition: opacity 0.4s ease;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
         .modal-overlay.active { display: flex; opacity: 1; }
 
         .modal-box {
-            background: #1a1a1a; width: min(550px, 95%); padding: 40px;
-            border-radius: 30px; border: 1px solid rgba(197, 160, 89, 0.3);
-            transform: translateY(50px) scale(0.9);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #181818;
+            width: min(92%, 540px);
+            padding: 28px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(197,160,89,0.22);
+            transform: scale(0.92) translateY(30px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 10px; color: var(--gold); font-size: 14px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: var(--gold); 
+            font-size: 0.9rem; 
+        }
+
         .form-group input, .form-group select {
-            width: 100%; padding: 14px; background: #222; border: 1px solid #333;
-            border-radius: 12px; color: white; outline: none;
+            width: 100%;
+            padding: 13px 14px;
+            background: #222;
+            border: 1px solid #2f2f2f;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
         }
 
         .upload-wrapper {
-            border: 2px dashed #333; padding: 30px; text-align: center;
-            border-radius: 15px; cursor: pointer; transition: 0.3s;
+            border: 2px dashed #333;
+            padding: 28px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        .upload-wrapper:hover { border-color: var(--gold); background: rgba(197,160,89,0.02); }
 
-        .preview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .upload-wrapper:hover {
+            border-color: var(--gold);
+            background: rgba(197,160,89,0.03);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
         .preview-grid img {
-            width: 100%; aspect-ratio: 1; object-fit: cover;
-            border-radius: 8px; border: 1px solid var(--gold);
-            animation: imgIn 0.4s ease forwards;
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--gold);
         }
 
-        @keyframes imgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content { padding: 20px 18px; }
+        }
 
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 70px 16px 24px;
+            }
+
+            .header-flex {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 12px;
+            }
+
+            h1 {
+                font-size: 1.55rem;
+                margin: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 58%;
+            }
+
+            .btn-gold {
+                padding: 11px 20px;
+                font-size: 0.92rem;
+                min-width: 135px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar { width: 82%; }
+            h1 { font-size: 1.35rem; max-width: 52%; }
+            .btn-gold { padding: 10px 16px; font-size: 0.88rem; min-width: 120px; }
+            .product-img { width: 42px; height: 42px; }
+        }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
         <h2>LUNABLOOM</h2>
         <a href="#" class="nav-link active"><i class="fa-solid fa-house-chimney-window"></i> Dashboard</a>
         <a href="index.html" class="nav-link"><i class="fa-solid fa-shop"></i> Saytni ko'rish</a>
-        <div style="position:absolute; bottom:20px; width:240px; text-align:center; font-size:10px; color:var(--gold); opacity:0.6;">
+        <div style="position:absolute; bottom:24px; left:20px; right:20px; text-align:center; font-size:0.78rem; color:var(--gold); opacity:0.55;">
             <i class="fa-solid fa-cloud"></i> CLOUD DATABASE CONNECTED
         </div>
     </nav>
 
     <main class="main-content">
-        <div class="header-flex">
-            <h1>Gullar <span style="font-weight: 300; color: var(--gold);">Ombori</span></h1>
-            <button class="btn-gold" onclick="toggleModal(true)">+ Guldasta qo'shish</button>
+        <div class="header-section">
+            <div class="header-flex">
+                <h1>Gullar <span style="font-weight:300; color:var(--gold);">Ombori</span></h1>
+                <button class="btn-gold" onclick="toggleModal(true)">+ Guldasta qo'shish</button>
+            </div>
         </div>
 
         <div class="table-card">
@@ -160,22 +346,22 @@
                         <th>Amallar</th>
                     </tr>
                 </thead>
-                <tbody id="pTableBody">
-                    </tbody>
+                <tbody id="pTableBody"></tbody>
             </table>
         </div>
     </main>
 
+    <!-- Modal (qolgan qismi o'zgarmagan) -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
-            <h2 style="font-family: 'Cinzel'; margin-bottom: 30px; color: var(--gold);">Yangi Guldasta</h2>
+            <h2 style="font-family: 'Cinzel'; margin-bottom: 28px; color: var(--gold);">Yangi Guldasta</h2>
             
             <div class="form-group">
                 <label>Guldasta nomi</label>
                 <input type="text" id="pName" placeholder="Masalan: Tungi Pari">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
                 <div class="form-group">
                     <label>Kategoriya</label>
                     <select id="pCat">
@@ -187,29 +373,28 @@
                 </div>
                 <div class="form-group">
                     <label>Narxi (so'm)</label>
-                    <input type="number" id="pPrice" placeholder="500000">
+                    <input type="number" id="pPrice" placeholder="500000" min="0">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Rasmlarni yuklash (Maks. 5 ta)</label>
+                <label>Rasmlarni yuklash (maks. 5 ta)</label>
                 <div class="upload-wrapper" onclick="document.getElementById('fileInput').click()">
-                    <i class="fa-solid fa-images" style="font-size: 32px; color: var(--gold); margin-bottom: 10px;"></i>
-                    <p style="font-size: 13px; color: #777;">Qurilmadan rasmlarni tanlang</p>
+                    <i class="fa-solid fa-images" style="font-size: 30px; color: var(--gold); margin-bottom: 8px;"></i>
+                    <p style="font-size: 0.85rem; color: #888;">Rasmlarni tanlang yoki bu yerga sudrab tashlang</p>
                 </div>
                 <input type="file" id="fileInput" hidden multiple accept="image/*" onchange="previewImages(this)">
                 <div class="preview-grid" id="previewGrid"></div>
             </div>
 
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <div style="display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap;">
                 <button id="saveBtn" class="btn-gold" style="flex: 2;" onclick="saveNewProduct()">Saqlash</button>
-                <button class="btn-gold" style="flex: 1; background: #333; box-shadow: none;" onclick="toggleModal(false)">Yopish</button>
+                <button class="btn-gold" style="flex: 1; background: #2a2a2a; box-shadow: none;" onclick="toggleModal(false)">Yopish</button>
             </div>
         </div>
     </div>
 
     <script>
-        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDNAYpb6L9ZTeXc555RQVWJCTDLp7cCwAI",
             authDomain: "lunabloom-1912.firebaseapp.com",
@@ -221,15 +406,23 @@
             measurementId: "G-65D3B197DC"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         let currentImages = [];
 
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+
         function toggleModal(open) {
             const modal = document.getElementById('modalOverlay');
-            if(open) {
+            if (open) {
                 modal.style.display = 'flex';
                 setTimeout(() => modal.classList.add('active'), 10);
             } else {
@@ -237,6 +430,7 @@
                 setTimeout(() => {
                     modal.style.display = 'none';
                     resetForm();
+                    if (window.innerWidth <= 768) sidebar.classList.remove('active');
                 }, 400);
             }
         }
@@ -249,80 +443,73 @@
 
             files.forEach(file => {
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = e => {
                     currentImages.push(e.target.result);
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     grid.appendChild(img);
-                }
+                };
                 reader.readAsDataURL(file);
             });
         }
 
         function saveNewProduct() {
-            const name = document.getElementById('pName').value;
-            const cat = document.getElementById('pCat').value;
+            const name  = document.getElementById('pName').value.trim();
+            const cat   = document.getElementById('pCat').value;
             const price = document.getElementById('pPrice').value;
             const saveBtn = document.getElementById('saveBtn');
 
-            if(!name || !price || currentImages.length === 0) {
-                alert("Barcha maydonlarni to'ldiring!");
+            if (!name || !price || currentImages.length === 0) {
+                alert("Nom, narx va kamida 1 ta rasm talab qilinadi!");
                 return;
             }
 
             saveBtn.disabled = true;
-            saveBtn.innerText = "Saqlanmoqda...";
+            saveBtn.textContent = "Saqlanmoqda...";
 
             const newProduct = {
-                name, 
-                cat, 
-                price: parseInt(price), 
-                img: currentImages[0], 
+                name,
+                cat,
+                price: parseInt(price) || 0,
+                img: currentImages[0],
                 allImages: currentImages,
                 timestamp: Date.now()
             };
 
-            // Firebase'ga saqlash
             db.ref('flowers').push(newProduct)
                 .then(() => {
                     toggleModal(false);
                     saveBtn.disabled = false;
-                    saveBtn.innerText = "Saqlash";
+                    saveBtn.textContent = "Saqlash";
                 })
                 .catch(err => {
-                    alert("Xatolik: " + err);
+                    alert("Xato: " + err.message);
                     saveBtn.disabled = false;
-                    saveBtn.innerText = "Saqlash";
+                    saveBtn.textContent = "Saqlash";
                 });
         }
 
         function deleteP(id) {
-            if(confirm("Ushbu guldasta serverdan butunlay o'chirilsinmi?")) {
-                db.ref('flowers/' + id).remove();
-            }
+            if (!confirm("O‘chirishni tasdiqlaysizmi?")) return;
+            db.ref('flowers/' + id).remove().catch(err => alert(err.message));
         }
 
-        // Ma'lumotlarni Real-Time (jonli) yuklab olish
         function listenToProducts() {
-            db.ref('flowers').on('value', (snapshot) => {
+            db.ref('flowers').on('value', snapshot => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('pTableBody');
                 tbody.innerHTML = '';
-                
+
                 if (data) {
                     Object.keys(data).forEach(id => {
                         const p = data[id];
                         tbody.innerHTML += `
                             <tr>
-                                <td><img src="${p.img}" class="product-img"></td>
-                                <td style="font-weight: 600;">${p.name}</td>
-                                <td><span style="color:var(--gold); font-size: 12px;">${p.cat.toUpperCase()}</span></td>
-                                <td>${p.price.toLocaleString()} so'm</td>
-                                <td>
-                                    <button class="action-btn" onclick="deleteP('${id}')">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </td>
+                                <td><img src="${p.img||''}" class="product-img" alt="${p.name||''}"></td>
+                                <td style="font-weight:600;">${p.name||'—'}</td>
+                                <td><span style="color:var(--gold); font-size:0.8rem;">${(p.cat||'').toUpperCase()}</span></td>
+                                <td>${Number(p.price||0).toLocaleString('uz-UZ')} so'm</td>
+                                <td><button class="action-btn" onclick="deleteP('${id}')"><i class="fa-solid fa-trash-can"></i></button></td>
                             </tr>
                         `;
                     });
