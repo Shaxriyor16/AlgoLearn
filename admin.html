@@ -653,19 +653,19 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDNAYpb6L9ZTeXc555RQVWJCTDLp7cCwAI",
-            authDomain: "lunabloom-1912.firebaseapp.com",
-            databaseURL: "https://lunabloom-1912-default-rtdb.firebaseio.com",
-            projectId: "lunabloom-1912",
-            storageBucket: "lunabloom-1912.firebasestorage.app",
-            messagingSenderId: "781213160103",
-            appId: "1:781213160103:web:a53bbf235c8a445fc28182",
-            measurementId: "G-65D3B197DC"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyDNAYpb6L9ZTeXc555RQVWJCTDLp7cCwAI",
+    authDomain: "lunabloom-1912.firebaseapp.com",
+    databaseURL: "https://lunabloom-1912-default-rtdb.firebaseio.com",
+    projectId: "lunabloom-1912",
+    storageBucket: "lunabloom-1912.firebasestorage.app",
+    messagingSenderId: "781213160103",
+    appId: "1:781213160103:web:a53bbf235c8a445fc28182",
+    measurementId: "G-65D3B197DC"
+};
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
         async function hashPassword(password) {
             const msgBuffer = new TextEncoder().encode(password);
