@@ -709,6 +709,8 @@
             color: var(--grey);
         }
 
+        .dark-grid .product-card { background: #161616; color: white; border: 1px solid rgba(197,160,89,0.18); }
+        .dark-grid .p-price { color: var(--p-gold); font-weight: 600; }
 
         @media (max-width: 1400px) {
             .product-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
@@ -927,16 +929,17 @@
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script type="module">
+
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+    <script>
         AOS.init({
             duration: 1000,
             once: true,
             easing: 'ease-out-quart',
             mirror: false
         });
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDNAYpb6L9ZTeXc555RQVWJCTDLp7cCwAI",
@@ -949,30 +952,36 @@
             measurementId: "G-65D3B197DC"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         let products = [];
 
-        async function loadProducts() {
+        function loadProducts() {
             const grid = document.getElementById('productGrid');
-            try {
-                const dbRef = ref(db);
-                const snap = await get(child(dbRef, 'products'));
-                if (snap.exists()) {
-                    products = Object.entries(snap.val()).map(([k,v]) => ({id:k, ...v}));
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:140px 30px; color:var(--grey); font-size:20px;">
+                    Mahsulotlar yuklanmoqda...<br>
+                    <small style="font-size:14px; margin-top:14px; display:block; opacity:0.8;">
+                        Bir necha soniya kuting yoki internet aloqangizni tekshiring
+                    </small>
+                </div>`;
+
+            db.ref('flowers').on('value', snapshot => {
+                const val = snapshot.val();
+                if (val) {
+                    products = Object.entries(val).map(([k, v]) => ({ id: k, ...v }));
                     displayProducts('category', 'all');
                 } else {
                     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:160px 30px;color:var(--grey);font-size:20px;">
                         Hozircha mahsulotlar yo‘q...<br><small style="font-size:14px;">Tez orada yangi to‘plamlar qo‘shiladi</small>
                     </div>`;
                 }
-            } catch(e) {
-                console.error(e);
+            }, err => {
+                console.error(err);
                 grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:160px 30px;color:#c0392b;font-size:18px;">
                     Ma‘lumotlar yuklanmadi. Aloqani tekshiring.
                 </div>`;
-            }
+            });
         }
 
         function displayProducts(filterType, value) {
@@ -994,14 +1003,14 @@
                 return;
             }
 
-            list.forEach((p,i) => {
-                const img   = p.img  || 'https://via.placeholder.com/360x460?text=Rasm+yo‘q';
-                const name  = p.name || 'Nomsiz';
+            list.forEach((p, i) => {
+                const img = p.img || 'https://via.placeholder.com/360x460?text=Rasm+yo‘q';
+                const name = p.name || 'Nomsiz';
                 const price = Number(p.price || 0).toLocaleString('uz-UZ');
                 const catUp = (p.cat || 'boshqa').toUpperCase();
 
                 grid.innerHTML += `
-                <div class="product-card" data-aos="fade-up" data-aos-delay="${i*80}">
+                <div class="product-card" data-aos="fade-up" data-aos-delay="${i * 80}">
                     <div class="img-container">
                         <img src="${img}" alt="${name}" loading="lazy">
                         <div class="card-overlay">
@@ -1026,6 +1035,7 @@
             });
         });
 
+        // Header search input: debounce and search across loaded products (works with 'flowers' data)
         const headerInput = document.getElementById('headerSearchInput');
         headerInput.addEventListener('input', debounce(e => {
             const q = e.target.value.trim().toLowerCase();
@@ -1038,7 +1048,7 @@
             document.querySelector('.filter-btn.active')?.classList.remove('active');
             displayProducts('search', q);
             if (window.scrollY < document.getElementById('catalog').offsetTop - 100) {
-                document.getElementById('catalog').scrollIntoView({behavior: 'smooth'});
+                document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
             }
         }, 300));
 
@@ -1050,17 +1060,19 @@
             };
         }
 
+        // Scroll listener for header and hero parallax
         window.addEventListener('scroll', () => {
             document.getElementById('mainHeader').classList.toggle('scrolled', scrollY > 60);
 
             const bg = document.getElementById('heroBg');
-            if (bg) bg.style.transform = `scale(${1.1 + scrollY/6000}) translateY(${scrollY*0.08}px)`;
+            if (bg) bg.style.transform = `scale(${1.1 + scrollY / 6000}) translateY(${scrollY * 0.08}px)`;
         });
 
-        const overlay   = document.getElementById('searchOverlay');
-        const input     = document.getElementById('searchInput');
-        const results   = document.getElementById('searchResults');
-        const noRes     = document.getElementById('noSearchResults');
+        // Search overlay (mobile-focused) — unchanged but now searches loaded 'flowers'
+        const overlay = document.getElementById('searchOverlay');
+        const input = document.getElementById('searchInput');
+        const results = document.getElementById('searchResults');
+        const noRes = document.getElementById('noSearchResults');
 
         function open() {
             overlay.classList.add('open');
@@ -1083,11 +1095,11 @@
         input.addEventListener('input', e => {
             const q = e.target.value.trim().toLowerCase();
             if (q.length < 2) {
-                results.innerHTML = ''; noRes.style.display='none'; return;
+                results.innerHTML = ''; noRes.style.display = 'none'; return;
             }
 
-            const found = products.filter(p => 
-                (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q)
+            const found = products.filter(p =>
+                (p.name || '').toLowerCase().includes(q) || (p.cat || '').toLowerCase().includes(q)
             );
 
             results.innerHTML = '';
@@ -1099,18 +1111,17 @@
                     const img = p.img || 'https://via.placeholder.com/240x160?text=';
                     results.innerHTML += `
                     <div class="search-item">
-                        <img src="${img}" alt="${p.name||'—'}">
+                        <img src="${img}" alt="${p.name || '—'}">
                         <div class="meta">
-                            <div style="font-weight:600;">${p.name||'—'}</div>
-                            <div style="color:var(--grey);font-size:13px;">${Number(p.price||0).toLocaleString('uz-UZ')} so‘m</div>
+                            <div style="font-weight:600;">${p.name || '—'}</div>
+                            <div style="color:var(--grey);font-size:13px;">${Number(p.price || 0).toLocaleString('uz-UZ')} so‘m</div>
                         </div>
                     </div>`;
                 });
             }
         });
 
-        document.addEventListener('keydown', e => { if (e.key==='Escape') close(); });
-
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
         loadProducts();
     </script>
 </body>
