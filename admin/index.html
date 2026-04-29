@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - AlgoLearn</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="shortcut icon" href="../assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +14,6 @@
 </head>
 <body>
     <div class="admin-layout">
-        <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="sidebar-header">
                 <a href="#" class="logo">
@@ -54,9 +55,9 @@
             
             <div class="sidebar-footer">
                 <div class="admin-info">
-                    <img src="https://via.placeholder.com/40?text=A" alt="Admin" id="adminAvatar">
+                    <img src="../assets/logo.png" alt="Admin" id="adminAvatar">
                     <div>
-                        <span class="admin-name" id="adminName">Admin</span>
+                        <span class="admin-name" id="adminName">Shokirov Boburjon</span>
                         <span class="admin-role">Super Admin</span>
                     </div>
                 </div>
@@ -240,16 +241,29 @@
 
             <div class="page-content" id="videos-page">
                 <div class="content-header">
-                    <h2>Video yuklash</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Videolarni qidirish..." id="videoSearch">
+                    </div>
+                    <div class="filters">
+                        <select id="videoCourseFilter">
+                            <option value="">Barcha kurslar</option>
+                        </select>
+                        <select id="videoLessonFilter">
+                            <option value="">Barcha darslar</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="upload-zone" id="uploadZone">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <p>Videolarni shu yerga olib keling</p>
                     <span>yoki</span>
-                    <button class="btn btn-primary">Fayl tanlash</button>
+                    <button class="btn btn-primary" id="videoSelectBtn">Fayl tanlash</button>
                     <input type="file" id="videoInput" accept="video/*" multiple hidden>
                 </div>
-                <div class="upload-list" id="uploadList"></div>
+                <div class="data-grid" id="videosGrid">
+                    <!-- Videos will be loaded here -->
+                </div>
             </div>
 
             <div class="page-content" id="quizzes-page">
@@ -702,6 +716,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
 

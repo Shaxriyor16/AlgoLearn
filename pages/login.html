@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirish - AlgoLearn</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="shortcut icon" href="../assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +24,13 @@
                     <h1>Tizimga kirish</h1>
                     <p>Hisobingizga kiring va o'rganishni davom ettiring</p>
                 </div>
-                
+
+                <!-- Redirect Message -->
+                <div class="redirect-message" id="redirectMessage" style="display: none;">
+                    <i class="fas fa-lock"></i>
+                    <span>Bu sahifani ko'rish uchun tizimga kiring</span>
+                </div>
+
                 <form id="loginForm">
                     <div class="form-group">
                         <label class="form-label" for="email">Email manzili</label>
@@ -40,15 +48,16 @@
                     
                     <div class="form-group">
                         <label class="form-label" for="password">Parol</label>
-                        <div class="form-input-icon">
+                        <div class="form-input-icon" style="position: relative;">
                             <i class="fas fa-lock"></i>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                class="form-input" 
+                            <input
+                                type="password"
+                                id="password"
+                                class="form-input"
                                 placeholder="••••••••"
                                 required
                             >
+                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                         </div>
                     </div>
                     
@@ -65,9 +74,9 @@
                         Kirish
                     </button>
                 </form>
-                
+
                 <div class="divider">yoki</div>
-                
+
                 <div class="social-login">
                     <button class="social-btn google" onclick="AuthService.loginWithGoogle()">
                         <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -83,7 +92,7 @@
                         Apple orqali kirish
                     </button>
                 </div>
-                
+
                 <div class="auth-footer">
                     Hisobingiz yo'qmi? 
                     <a href="register.html">Ro'yxatdan o'tish</a>
@@ -104,6 +113,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
@@ -113,6 +123,27 @@
     <script src="../js/app.js"></script>
     
     <script>
+        // Check if user was redirected from protected page
+        document.addEventListener('DOMContentLoaded', () => {
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                document.getElementById('redirectMessage').style.display = 'flex';
+            }
+
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+        });
+
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -136,16 +167,7 @@
                 // Error handled in AuthService
             }
         });
-        
-        // Google login
-        async function loginWithGoogle() {
-            try {
-                await AuthService.loginWithGoogle();
-            } catch (error) {
-                // Error handled in AuthService
-            }
-        }
-        
+
         // Forgot password
         async function forgotPassword() {
             const email = document.getElementById('email').value;

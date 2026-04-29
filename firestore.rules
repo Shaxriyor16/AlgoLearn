@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Spark (bepul) plan uchun - get() yo'q, faqat custom claims
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Admin - Firebase Auth custom claims orqali
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Courses collection
+    match /courses/{courseId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+      
+      // Lessons subcollection
+      match /lessons/{lessonId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+      }
+    }
+    
+    // Categories collection
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Quizzes collection
+    match /quizzes/{quizId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Videos collection
+    match /videos/{videoId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Enrollments
+    match /enrollments/{enrollmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Progress
+    match /progress/{progressId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Quiz results
+    match /quizResults/{resultId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Bookmarks
+    match /bookmarks/{bookmarkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated();
+    }
+  }
+}

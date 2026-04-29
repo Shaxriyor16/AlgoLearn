@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kurs Tafsilotlari - AlgoLearn</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="shortcut icon" href="../assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -657,8 +659,8 @@
                                 <i class="fas fa-user"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600;">Anvarov Anvar</div>
-                                <div style="font-size: 0.875rem; color: rgb(var(--text-secondary));">Senior Developer</div>
+                                <div style="font-weight: 600;">Shokirov Boburjon</div>
+                                <div style="font-size: 0.875rem; color: rgb(var(--text-secondary));">Algoritm va Data Structures Ustasi</div>
                             </div>
                         </div>
                     </div>
@@ -667,7 +669,26 @@
         </div>
     </main>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    
     <script>
+        // Check Authentication before accessing lessons
+        let currentUser = null;
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // Save current URL for redirect after login
+                sessionStorage.setItem('redirectAfterLogin', window.location.href);
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+        });
+
         // Open Lesson
         function openLesson(lessonId) {
             const card = document.querySelector(`[data-lesson-id="${lessonId}"]`);

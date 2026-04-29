@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - AlgoLearn</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="shortcut icon" href="../assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 50%, #1e1b4b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            text-decoration: none;
+        }
+
+        .login-logo i {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .login-logo span {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input-wrapper {
+            position: relative;
+        }
+
+        .form-input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+        }
+
+        .form-input-wrapper .toggle-password {
+            left: auto;
+            right: 16px;
+            color: #374151;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .form-input-wrapper .toggle-password:hover {
+            color: #4f46e5;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 48px 14px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 32px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            display: none;
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #4f46e5;
+        }
+
+        .back-link i {
+            margin-right: 6px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px;
+            }
+
+            .login-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <a href="../index.html" class="login-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>AlgoLearn</span>
+                </a>
+                <h1>Admin Panel</h1>
+                <p>Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+                <span class="admin-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Only
+                </span>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Email manzili</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input 
+                            type="email" 
+                            id="username" 
+                            class="form-input" 
+                            placeholder="shokirovboburjon@gmail.com"
+                            value="shokirovboburjon@gmail.com"
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Parol</label>
+                    <div class="form-input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input
+                            type="password"
+                            id="password"
+                            class="form-input"
+                            placeholder="Parolni kiriting"
+                            value="Boburjon"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Kirish
+                </button>
+            </form>
+
+            <a href="../index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Bosh sahifaga qaytish
+            </a>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
+    <script src="../js/firebase-config.js"></script>
+    
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Check if already logged in
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Check if user is admin
+                checkAdminRole(user.uid);
+            }
+        });
+
+        async function checkAdminRole(uid) {
+            try {
+                const doc = await firebase.firestore().collection('users').doc(uid).get();
+                if (doc.exists && doc.data().role === 'admin') {
+                    window.location.href = 'index.html';
+                } else {
+                    // Not admin, sign out
+                    await firebase.auth().signOut();
+                    showError('Sizda admin huquqlari yo\'q');
+                }
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('Iltimos, barcha maydonlarni to\'ldiring');
+                return;
+            }
+
+            // Show loading
+            loadingOverlay.classList.add('show');
+            loginBtn.disabled = true;
+            errorMessage.classList.remove('show');
+
+            try {
+                // For admin login, we use email format: username@admin.algolearn.uz
+                // Or we can check if username contains @ to use as email directly
+                const email = username.includes('@') ? username : username + '@admin.algolearn.uz';
+                
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                
+                // Check if user is admin
+                const userDoc = await firebase.firestore().collection('users').doc(userCredential.user.uid).get();
+                
+                if (userDoc.exists && userDoc.data().role === 'admin') {
+                    window.location.href = 'index.html';
+                } else {
+                    await firebase.auth().signOut();
+                    showError('Sizda admin huquqlari yo\'q');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let message = 'Kirishda xatolik yuz berdi';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        message = 'Bunday foydalanuvchi topilmadi';
+                        break;
+                    case 'auth/wrong-password':
+                        message = 'Noto\'g\'ri parol';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Noto\'g\'ri email formati';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Juda ko\'p urinishlar. Iltimos, kuting';
+                        break;
+                }
+                
+                showError(message);
+            } finally {
+                loadingOverlay.classList.remove('show');
+                loginBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+    </script>
+</body>
+</html>

@@ -816,6 +816,7 @@ body {
     margin-bottom: 0.5rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -872,6 +873,12 @@ body {
     font-size: 0.875rem;
     color: rgb(var(--text-tertiary));
     margin-bottom: 1rem;
+}
+
+.upload-zone.drag-active {
+    border-color: rgb(var(--primary-500));
+    background-color: rgb(var(--primary-50));
+    transform: scale(1.02);
 }
 
 /* ============================================

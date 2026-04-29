@@ -7,6 +7,9 @@ let currentPage = 'dashboard';
 let coursesData = [];
 let usersData = [];
 let categoriesData = [];
+let lessonsData = [];
+let quizzesData = [];
+let videosData = [];
 
 // ============================================
 // INITIALIZATION
@@ -21,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             checkAdminRole(user.uid);
         } else {
-            window.location.href = '../pages/login.html';
+            window.location.href = 'login.html';
         }
     });
 });
@@ -133,6 +136,15 @@ function navigateToPage(page) {
         case 'users':
             loadUsers();
             break;
+        case 'lessons':
+            loadLessons();
+            break;
+        case 'videos':
+            loadVideos();
+            break;
+        case 'quizzes':
+            loadQuizzes();
+            break;
         case 'categories':
             loadCategories();
             break;
@@ -148,6 +160,15 @@ function initEventListeners() {
         switch(currentPage) {
             case 'courses':
                 showAddCourseModal();
+                break;
+            case 'lessons':
+                showAddLessonModal();
+                break;
+            case 'videos':
+                document.getElementById('videoInput').click();
+                break;
+            case 'quizzes':
+                showAddQuizModal();
                 break;
             case 'categories':
                 showAddCategoryModal();
@@ -166,10 +187,68 @@ function initEventListeners() {
     // Search boxes
     document.getElementById('courseSearch')?.addEventListener('input', debounce(handleCourseSearch, 300));
     document.getElementById('userSearch')?.addEventListener('input', debounce(handleUserSearch, 300));
+    document.getElementById('quizSearch')?.addEventListener('input', debounce(handleQuizSearch, 300));
+    document.getElementById('quizCourseFilter')?.addEventListener('change', handleQuizFilter);
+    document.getElementById('quizLessonFilter')?.addEventListener('change', handleQuizFilter);
+    
+    // Videos
+    document.getElementById('videoSearch')?.addEventListener('input', debounce(handleVideoSearch, 300));
+    document.getElementById('videoCourseFilter')?.addEventListener('change', handleVideoFilter);
+    document.getElementById('videoLessonFilter')?.addEventListener('change', handleVideoFilter);
+    document.getElementById('videoSelectBtn')?.addEventListener('click', () => document.getElementById('videoInput').click());
+    document.getElementById('videoInput')?.addEventListener('change', handleVideoUpload);
+    
+    // Drag & drop
+    const uploadZone = document.getElementById('uploadZone');
+    if (uploadZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => uploadZone.classList.add('drag-active'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, () => uploadZone.classList.remove('drag-active'), false);
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleVideoUpload({ target: { files: files } });
+            }
+        }, false);
+    }
     
     // Filters
     document.getElementById('categoryFilter')?.addEventListener('change', handleCourseFilter);
     document.getElementById('statusFilter')?.addEventListener('change', handleCourseFilter);
+    document.getElementById('lessonSearch')?.addEventListener('input', debounce(handleLessonSearch, 300));
+    document.getElementById('lessonCourseFilter')?.addEventListener('change', handleLessonFilter);
+    
+    // Lesson form submit
+    document.getElementById('lessonForm')?.addEventListener('submit', handleLessonSubmit);
+    
+    // Quiz form submit
+    document.getElementById('quizForm')?.addEventListener('submit', handleQuizSubmit);
+    
+    // Bepul/Pullik toggle label switch
+    const isFreeCheckbox = document.querySelector('input[name="isFree"]');
+    if (isFreeCheckbox) {
+        const updateFreeLabel = () => {
+            const label = isFreeCheckbox.closest('label.toggle')?.querySelector('span');
+            if (label) label.textContent = isFreeCheckbox.checked ? 'Bepul' : 'Pullik';
+        };
+        isFreeCheckbox.addEventListener('change', updateFreeLabel);
+        updateFreeLabel();
+    }
 }
 
 // ============================================
@@ -349,18 +428,25 @@ async function loadCategoriesForFilter() {
     }
 }
 
-function showAddCourseModal() {
+async function showAddCourseModal() {
     document.getElementById('courseModalTitle').textContent = 'Yangi kurs';
     document.getElementById('courseForm').reset();
     document.getElementById('courseForm').dataset.mode = 'add';
     delete document.getElementById('courseForm').dataset.courseId;
     document.getElementById('thumbnailPreview').innerHTML = '';
+    await loadCategoriesForFilter();
+    // Reset Bepul label
+    const isFreeCheckbox = document.querySelector('input[name="isFree"]');
+    const label = isFreeCheckbox?.closest('label.toggle')?.querySelector('span');
+    if (label) label.textContent = 'Bepul';
     openModal('courseModal');
 }
 
-function editCourse(courseId) {
+async function editCourse(courseId) {
     const course = coursesData.find(c => c.id === courseId);
     if (!course) return;
+    
+    await loadCategoriesForFilter();
     
     document.getElementById('courseModalTitle').textContent = 'Kursni tahrirlash';
     document.getElementById('courseForm').dataset.mode = 'edit';
@@ -373,6 +459,11 @@ function editCourse(courseId) {
     document.querySelector('input[name="tags"]').value = (course.tags || []).join(', ');
     document.querySelector('input[name="isFree"]').checked = course.isFree !== false;
     document.querySelector('input[name="isPublished"]').checked = course.isPublished || false;
+    
+    // Update Bepul/Pullik label
+    const isFreeCheckbox = document.querySelector('input[name="isFree"]');
+    const freeLabel = isFreeCheckbox?.closest('label.toggle')?.querySelector('span');
+    if (freeLabel) freeLabel.textContent = course.isFree !== false ? 'Bepul' : 'Pullik';
     
     if (course.thumbnail) {
         document.getElementById('thumbnailPreview').innerHTML = `
@@ -482,19 +573,629 @@ function handleCourseFilter() {
 }
 
 // ============================================
+// LESSONS
+// ============================================
+async function loadLessons() {
+    try {
+        showLoading();
+        const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+        let allLessons = [];
+        
+        for (const courseDoc of coursesSnap.docs) {
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+                .doc(courseDoc.id)
+                .collection(COLLECTIONS.LESSONS)
+                .orderBy('orderIndex')
+                .get();
+            
+            lessonsSnap.docs.forEach(doc => {
+                allLessons.push({
+                    id: doc.id,
+                    courseId: courseDoc.id,
+                    courseTitle: courseDoc.data().title,
+                    ...doc.data()
+                });
+            });
+        }
+        
+        lessonsData = allLessons;
+        renderLessons(allLessons);
+        
+        // Load courses for filter
+        const courseSelect = document.getElementById('lessonCourseFilter');
+        if (courseSelect) {
+            const options = coursesSnap.docs.map(doc => 
+                `<option value="${doc.id}">${doc.data().title}</option>`
+            ).join('');
+            courseSelect.innerHTML = '<option value="">Barcha kurslar</option>' + options;
+        }
+        
+        // Load courses for modal
+        const modalCourseSelect = document.getElementById('lessonCourseSelect');
+        if (modalCourseSelect) {
+            const options = coursesSnap.docs.map(doc => 
+                `<option value="${doc.id}">${doc.data().title}</option>`
+            ).join('');
+            modalCourseSelect.innerHTML = '<option value="">Kursni tanlang...</option>' + options;
+        }
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Load lessons error:', error);
+        hideLoading();
+        showToast('Darslarni yuklashda xatolik', 'error');
+    }
+}
+
+function renderLessons(lessons) {
+    const container = document.getElementById('lessonsGrid');
+    if (!container) return;
+    
+    if (lessons.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-play-circle"></i>
+                <h3>Hozircha darslar yo'q</h3>
+                <p>Yangi dars qo'shish uchun "Dars qo'shish" tugmasini bosing</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = lessons.map(lesson => `
+        <div class="admin-course-card">
+            <div class="admin-course-header">
+                <div class="admin-course-actions">
+                    <button class="action-icon" onclick="editLesson('${lesson.courseId}', '${lesson.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-icon delete" onclick="deleteLesson('${lesson.courseId}', '${lesson.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="admin-course-body">
+                <h4>${lesson.title}</h4>
+                <div class="admin-course-meta">
+                    <span><i class="fas fa-book"></i> ${lesson.courseTitle || '-'}</span>
+                    <span><i class="fas fa-clock"></i> ${lesson.duration || 0} daq</span>
+                </div>
+                <div class="admin-course-footer">
+                    <span class="badge badge-default">Tartib: ${lesson.orderIndex || 0}</span>
+                    <span class="badge ${lesson.hasQuiz ? 'badge-success' : 'badge-warning'}">
+                        ${lesson.hasQuiz ? 'Test bor' : 'Test yo\'q'}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function showAddLessonModal() {
+    document.getElementById('lessonModalTitle').textContent = 'Yangi dars';
+    document.getElementById('lessonForm').reset();
+    document.getElementById('lessonForm').dataset.mode = 'add';
+    delete document.getElementById('lessonForm').dataset.lessonId;
+    delete document.getElementById('lessonForm').dataset.courseId;
+    
+    // Reset video inputs visibility
+    toggleVideoInput();
+    toggleQuizSettings();
+    
+    // Load courses for select
+    const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+    const select = document.getElementById('lessonCourseSelect');
+    if (select) {
+        const options = coursesSnap.docs.map(doc => 
+            `<option value="${doc.id}">${doc.data().title}</option>`
+        ).join('');
+        select.innerHTML = '<option value="">Kursni tanlang...</option>' + options;
+    }
+    
+    openModal('lessonModal');
+}
+
+async function handleLessonSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const mode = form.dataset.mode;
+    const courseId = form.dataset.courseId || form.querySelector('select[name="courseSelect"]').value;
+    const lessonId = form.dataset.lessonId;
+    
+    if (!courseId) {
+        showToast('Iltimos, kursni tanlang', 'error');
+        return;
+    }
+    
+    const formData = {
+        title: form.querySelector('input[name="title"]').value,
+        description: form.querySelector('textarea[name="description"]').value,
+        orderIndex: parseInt(form.querySelector('input[name="orderIndex"]').value) || 1,
+        duration: parseInt(form.querySelector('input[name="duration"]').value) || 15,
+        hasQuiz: form.querySelector('input[name="hasQuiz"]')?.checked || false,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // Handle video source
+    const videoType = form.querySelector('select[name="videoType"]')?.value || 'storage';
+    if (videoType === 'youtube') {
+        formData.videoUrl = form.querySelector('input[name="youtubeUrl"]')?.value || '';
+        formData.videoType = 'youtube';
+    } else if (videoType === 'url') {
+        formData.videoUrl = form.querySelector('input[name="videoUrl"]')?.value || '';
+        formData.videoType = 'url';
+    }
+    // For storage, videoUrl will be set after upload (future implementation)
+    
+    try {
+        showLoading();
+        
+        if (mode === 'edit' && lessonId) {
+            await db.collection(COLLECTIONS.COURSES).doc(courseId)
+                .collection(COLLECTIONS.LESSONS).doc(lessonId).update(formData);
+            showToast('Dars yangilandi!', 'success');
+        } else {
+            formData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection(COLLECTIONS.COURSES).doc(courseId)
+                .collection(COLLECTIONS.LESSONS).add(formData);
+            showToast('Dars qo\'shildi!', 'success');
+            
+            // Update course lesson count
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES).doc(courseId)
+                .collection(COLLECTIONS.LESSONS).get();
+            await db.collection(COLLECTIONS.COURSES).doc(courseId).update({
+                lessonCount: lessonsSnap.size
+            });
+        }
+        
+        closeModal('lessonModal');
+        loadLessons();
+        hideLoading();
+    } catch (error) {
+        console.error('Save lesson error:', error);
+        hideLoading();
+        showToast('Xatolik yuz berdi', 'error');
+    }
+}
+
+async function editLesson(courseId, lessonId) {
+    try {
+        const doc = await db.collection(COLLECTIONS.COURSES).doc(courseId)
+            .collection(COLLECTIONS.LESSONS).doc(lessonId).get();
+        
+        if (!doc.exists) {
+            showToast('Dars topilmadi', 'error');
+            return;
+        }
+        
+        const lesson = doc.data();
+        
+        document.getElementById('lessonModalTitle').textContent = 'Darsni tahrirlash';
+        document.getElementById('lessonForm').dataset.mode = 'edit';
+        document.getElementById('lessonForm').dataset.lessonId = lessonId;
+        document.getElementById('lessonForm').dataset.courseId = courseId;
+        
+        // Load courses and set selected
+        const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+        const select = document.getElementById('lessonCourseSelect');
+        if (select) {
+            const options = coursesSnap.docs.map(doc => 
+                `<option value="${doc.id}" ${doc.id === courseId ? 'selected' : ''}>${doc.data().title}</option>`
+            ).join('');
+            select.innerHTML = '<option value="">Kursni tanlang...</option>' + options;
+        }
+        
+        // Fill form
+        document.querySelector('#lessonForm input[name="title"]').value = lesson.title || '';
+        document.querySelector('#lessonForm textarea[name="description"]').value = lesson.description || '';
+        document.querySelector('#lessonForm input[name="orderIndex"]').value = lesson.orderIndex || 1;
+        document.querySelector('#lessonForm input[name="duration"]').value = lesson.duration || 15;
+        document.querySelector('#lessonForm input[name="hasQuiz"]').checked = lesson.hasQuiz || false;
+        
+        // Video type
+        const videoType = lesson.videoType || 'storage';
+        const videoTypeSelect = document.querySelector('#lessonForm select[name="videoType"]');
+        if (videoTypeSelect) videoTypeSelect.value = videoType;
+        
+        if (videoType === 'youtube') {
+            const ytInput = document.querySelector('#lessonForm input[name="youtubeUrl"]');
+            if (ytInput) ytInput.value = lesson.videoUrl || '';
+        } else if (videoType === 'url') {
+            const urlInput = document.querySelector('#lessonForm input[name="videoUrl"]');
+            if (urlInput) urlInput.value = lesson.videoUrl || '';
+        }
+        
+        toggleVideoInput();
+        toggleQuizSettings();
+        
+        openModal('lessonModal');
+    } catch (error) {
+        console.error('Edit lesson error:', error);
+        showToast('Darsni yuklashda xatolik', 'error');
+    }
+}
+
+async function deleteLesson(courseId, lessonId) {
+    if (!confirm('Bu darsni o\'chirishni xohlaysizmi?')) return;
+    
+    try {
+        showLoading();
+        await db.collection(COLLECTIONS.COURSES).doc(courseId)
+            .collection(COLLECTIONS.LESSONS).doc(lessonId).delete();
+        
+        // Update course lesson count
+        const lessonsSnap = await db.collection(COLLECTIONS.COURSES).doc(courseId)
+            .collection(COLLECTIONS.LESSONS).get();
+        await db.collection(COLLECTIONS.COURSES).doc(courseId).update({
+            lessonCount: lessonsSnap.size
+        });
+        
+        showToast('Dars o\'chirildi', 'success');
+        loadLessons();
+        hideLoading();
+    } catch (error) {
+        console.error('Delete lesson error:', error);
+        hideLoading();
+        showToast('O\'chirishda xatolik', 'error');
+    }
+}
+
+function toggleVideoInput() {
+    const videoType = document.getElementById('videoType')?.value || 'storage';
+    const storageUpload = document.getElementById('storageUpload');
+    const youtubeInput = document.getElementById('youtubeInput');
+    const urlInput = document.getElementById('urlInput');
+    
+    if (storageUpload) storageUpload.style.display = videoType === 'storage' ? 'block' : 'none';
+    if (youtubeInput) youtubeInput.style.display = videoType === 'youtube' ? 'block' : 'none';
+    if (urlInput) urlInput.style.display = videoType === 'url' ? 'block' : 'none';
+}
+
+function toggleQuizSettings() {
+    const hasQuiz = document.getElementById('hasQuizCheckbox')?.checked || false;
+    const quizSettings = document.getElementById('quizSettings');
+    if (quizSettings) {
+        quizSettings.style.display = hasQuiz ? 'block' : 'none';
+        quizSettings.style.opacity = hasQuiz ? '1' : '0.6';
+        quizSettings.style.pointerEvents = hasQuiz ? 'auto' : 'none';
+    }
+}
+
+function handleLessonSearch(e) {
+    const query = e.target.value.toLowerCase();
+    const filtered = lessonsData.filter(lesson => 
+        lesson.title?.toLowerCase().includes(query) ||
+        (lesson.description && lesson.description.toLowerCase().includes(query))
+    );
+    renderLessons(filtered);
+}
+
+function handleLessonFilter() {
+    const courseId = document.getElementById('lessonCourseFilter')?.value;
+    
+    let filtered = lessonsData;
+    
+    if (courseId) {
+        filtered = filtered.filter(l => l.courseId === courseId);
+    }
+    
+    renderLessons(filtered);
+}
+
+// ============================================
+// VIDEOS
+// ============================================
+async function loadVideos() {
+    try {
+        showLoading();
+        
+        // Load all videos from lessons subcollections
+        let allVideos = [];
+        const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+        
+        for (const courseDoc of coursesSnap.docs) {
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+                .doc(courseDoc.id)
+                .collection(COLLECTIONS.LESSONS)
+                .get();
+            
+            for (const lessonDoc of lessonsSnap.docs) {
+                const lesson = lessonDoc.data();
+                // Check if lesson has videoUrl or videoType
+                if (lesson.videoUrl) {
+                    allVideos.push({
+                        id: lessonDoc.id,
+                        courseId: courseDoc.id,
+                        courseTitle: courseDoc.data().title,
+                        lessonId: lessonDoc.id,
+                        lessonTitle: lesson.title,
+                        videoUrl: lesson.videoUrl,
+                        videoType: lesson.videoType || 'storage',
+                        thumbnail: courseDoc.data().thumbnail,
+                        duration: lesson.duration || 0,
+                        updatedAt: lesson.updatedAt
+                    });
+                }
+            }
+        }
+        
+        // Also check dedicated videos collection if exists
+        try {
+            const videosSnap = await db.collection('videos').orderBy('createdAt', 'desc').get();
+            videosSnap.docs.forEach(doc => {
+                const v = doc.data();
+                allVideos.push({
+                    id: doc.id,
+                    ...v,
+                    videoUrl: v.url || v.videoUrl,
+                    lessonTitle: v.lessonTitle || 'Noma\'lum dars',
+                    courseTitle: v.courseTitle || 'Noma\'lum kurs'
+                });
+            });
+        } catch (e) {
+            // videos collection may not exist
+        }
+        
+        videosData = allVideos;
+        renderVideos(allVideos);
+        
+        // Load filters
+        const courseSelect = document.getElementById('videoCourseFilter');
+        if (courseSelect) {
+            const options = coursesSnap.docs.map(doc => 
+                `<option value="${doc.id}">${doc.data().title}</option>`
+            ).join('');
+            courseSelect.innerHTML = '<option value="">Barcha kurslar</option>' + options;
+        }
+        
+        let allLessons = [];
+        for (const courseDoc of coursesSnap.docs) {
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+                .doc(courseDoc.id)
+                .collection(COLLECTIONS.LESSONS)
+                .get();
+            lessonsSnap.docs.forEach(d => {
+                allLessons.push({ id: d.id, title: d.data().title, courseId: courseDoc.id });
+            });
+        }
+        
+        const lessonSelect = document.getElementById('videoLessonFilter');
+        if (lessonSelect) {
+            const options = allLessons.map(l => 
+                `<option value="${l.id}">${l.title}</option>`
+            ).join('');
+            lessonSelect.innerHTML = '<option value="">Barcha darslar</option>' + options;
+        }
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Load videos error:', error);
+        hideLoading();
+        showToast('Videolarni yuklashda xatolik: ' + error.message, 'error');
+    }
+}
+
+function renderVideos(videos) {
+    const container = document.getElementById('videosGrid');
+    if (!container) return;
+    
+    if (videos.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-video"></i>
+                <h3>Hozircha videolar yo'q</h3>
+                <p>Yuqoridagi "Fayl tanlash" tugmasi orqali video yuklang</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = videos.map(video => `
+        <div class="admin-course-card">
+            <div class="admin-course-header">
+                <video class="video-preview" src="${video.videoUrl}" preload="metadata" poster="${video.thumbnail || ''}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: #000;"></video>
+                <div class="admin-course-actions" style="top: 8px; right: 8px;">
+                    <button class="action-icon delete" onclick="deleteVideo('${video.id}', '${video.courseId}', '${video.lessonId}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <span class="badge badge-default" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: white;">
+                    ${formatDuration(video.duration)}
+                </span>
+            </div>
+            <div class="admin-course-body">
+                <h4>${video.lessonTitle || 'Noma\'lum dars'}</h4>
+                <div class="admin-course-meta">
+                    <span><i class="fas fa-book"></i> ${video.courseTitle || 'Noma\'lum kurs'}</span>
+                    <span><i class="fas fa-play-circle"></i> ${video.videoType || 'storage'}</span>
+                </div>
+                <div class="admin-course-footer">
+                    <a href="${video.videoUrl}" target="_blank" class="btn btn-sm btn-outline" style="text-decoration: none;">
+                        <i class="fas fa-external-link-alt"></i> Ko'rish
+                    </a>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function handleVideoUpload(e) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    for (const file of files) {
+        if (!file.type.startsWith('video/')) {
+            showToast('Faqat video fayllar yuklanishi mumkin: ' + file.name, 'warning');
+            continue;
+        }
+        
+        // Show upload progress UI
+        const uploadItem = document.createElement('div');
+        uploadItem.className = 'upload-item';
+        uploadItem.innerHTML = `
+            <div class="upload-info">
+                <i class="fas fa-file-video"></i>
+                <span>${file.name}</span>
+                <span class="upload-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+            </div>
+            <div class="upload-progress-bar">
+                <div class="upload-progress-fill" id="progress-${file.name.replace(/[^a-z0-9]/gi, '')}"></div>
+            </div>
+        `;
+        
+        // Insert after upload zone
+        const uploadZone = document.getElementById('uploadZone');
+        if (uploadZone && uploadZone.nextElementSibling) {
+            uploadZone.parentNode.insertBefore(uploadItem, uploadZone.nextElementSibling);
+        }
+        
+        try {
+            const fileName = `videos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            const storageRef = storage.ref(fileName);
+            const uploadTask = storageRef.put(file);
+            
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    const fill = document.getElementById(`progress-${file.name.replace(/[^a-z0-9]/gi, '')}`);
+                    if (fill) fill.style.width = progress + '%';
+                },
+                (error) => {
+                    console.error('Upload error:', error);
+                    showToast('Yuklashda xatolik: ' + file.name, 'error');
+                    if (uploadItem) uploadItem.remove();
+                },
+                async () => {
+                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                    
+                    // Save video metadata to Firestore
+                    await db.collection('videos').add({
+                        name: file.name,
+                        url: downloadURL,
+                        storagePath: fileName,
+                        size: file.size,
+                        type: file.type,
+                        duration: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    showToast('Video yuklandi: ' + file.name, 'success');
+                    if (uploadItem) uploadItem.remove();
+                    loadVideos();
+                }
+            );
+        } catch (error) {
+            console.error('Video upload error:', error);
+            showToast('Yuklashda xatolik: ' + error.message, 'error');
+            if (uploadItem) uploadItem.remove();
+        }
+    }
+    
+    e.target.value = '';
+}
+
+async function deleteVideo(videoId, courseId, lessonId) {
+    if (!confirm('Bu videoni o\'chirishni xohlaysizmi?')) return;
+    
+    try {
+        showLoading();
+        
+        // Try to delete from videos collection first
+        try {
+            const videoDoc = await db.collection('videos').doc(videoId).get();
+            if (videoDoc.exists) {
+                const data = videoDoc.data();
+                if (data.storagePath) {
+                    await storage.ref(data.storagePath).delete();
+                }
+                await db.collection('videos').doc(videoId).delete();
+            }
+        } catch (e) {
+            // If not in videos collection, it might be in lesson
+        }
+        
+        // Also clear video from lesson if applicable
+        if (courseId && lessonId) {
+            try {
+                await db.collection(COLLECTIONS.COURSES).doc(courseId)
+                    .collection(COLLECTIONS.LESSONS).doc(lessonId)
+                    .update({
+                        videoUrl: firebase.firestore.FieldValue.delete(),
+                        videoType: firebase.firestore.FieldValue.delete(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+            } catch (e) {
+                // lesson may not have video
+            }
+        }
+        
+        showToast('Video o\'chirildi', 'success');
+        loadVideos();
+        hideLoading();
+    } catch (error) {
+        console.error('Delete video error:', error);
+        hideLoading();
+        showToast('O\'chirishda xatolik: ' + error.message, 'error');
+    }
+}
+
+function handleVideoSearch(e) {
+    const query = e.target.value.toLowerCase();
+    const filtered = videosData.filter(video => 
+        (video.lessonTitle || '').toLowerCase().includes(query) ||
+        (video.courseTitle || '').toLowerCase().includes(query)
+    );
+    renderVideos(filtered);
+}
+
+function handleVideoFilter() {
+    const courseId = document.getElementById('videoCourseFilter')?.value;
+    const lessonId = document.getElementById('videoLessonFilter')?.value;
+    
+    let filtered = videosData;
+    
+    if (courseId) {
+        filtered = filtered.filter(v => v.courseId === courseId);
+    }
+    
+    if (lessonId) {
+        filtered = filtered.filter(v => v.lessonId === lessonId);
+    }
+    
+    renderVideos(filtered);
+}
+
+function formatDuration(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ============================================
 // USERS
 // ============================================
 async function loadUsers() {
     try {
         showLoading();
+        console.log('[ADMIN] Loading users from collection:', COLLECTIONS.USERS);
         const snapshot = await db.collection(COLLECTIONS.USERS).get();
-        usersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log('[ADMIN] Users snapshot size:', snapshot.size);
+        
+        usersData = snapshot.docs.map(doc => {
+            const data = doc.data();
+            console.log('[ADMIN] User doc:', doc.id, data);
+            return { id: doc.id, ...data };
+        });
+        
         renderUsers(usersData);
         hideLoading();
     } catch (error) {
         console.error('Load users error:', error);
         hideLoading();
-        showToast('Foydalanuvchilarni yuklashda xatolik', 'error');
+        showToast('Foydalanuvchilarni yuklashda xatolik: ' + error.message, 'error');
     }
 }
 
@@ -502,21 +1203,40 @@ function renderUsers(users) {
     const container = document.getElementById('usersTable');
     if (!container) return;
     
-    container.innerHTML = users.map(user => `
+    if (users.length === 0) {
+        container.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: rgb(var(--text-secondary));">
+                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    Hozircha foydalanuvchilar yo'q
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    container.innerHTML = users.map(user => {
+        const name = user.name || user.displayName || (user.email ? user.email.split('@')[0] : 'Noma\'lum');
+        const email = user.email || '-';
+        const role = user.role || 'student';
+        const createdAt = formatDate(user.createdAt || user.created_at || user.registeredAt);
+        const avatarUrl = user.avatarUrl || user.photoURL || `https://via.placeholder.com/40?text=${encodeURIComponent(name.charAt(0).toUpperCase())}`;
+        
+        return `
         <tr>
             <td>
                 <div class="table-course">
-                    <img src="${user.avatarUrl || 'https://via.placeholder.com/40?text=' + user.name.charAt(0)}" alt="${user.name}">
-                    <span>${user.name}</span>
+                    <img src="${avatarUrl}" alt="${name}" onerror="this.src='https://via.placeholder.com/40?text=U'">
+                    <span>${name}</span>
                 </div>
             </td>
-            <td>${user.email}</td>
+            <td>${email}</td>
             <td>
-                <span class="badge ${user.role === 'admin' ? 'badge-success' : 'badge-default'}">
-                    ${user.role || 'student'}
+                <span class="badge ${role === 'admin' ? 'badge-success' : 'badge-default'}">
+                    ${role}
                 </span>
             </td>
-            <td>${formatDate(user.createdAt)}</td>
+            <td>${createdAt}</td>
             <td>
                 <span class="badge badge-success">Faol</span>
             </td>
@@ -526,15 +1246,17 @@ function renderUsers(users) {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function handleUserSearch(e) {
     const query = e.target.value.toLowerCase();
-    const filtered = usersData.filter(user => 
-        user.name.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query)
-    );
+    const filtered = usersData.filter(user => {
+        const name = (user.name || user.displayName || user.email || '').toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        return name.includes(query) || email.includes(query);
+    });
     renderUsers(filtered);
 }
 
@@ -627,6 +1349,353 @@ async function handleCategorySubmit(e) {
 }
 
 // ============================================
+// QUIZZES
+// ============================================
+async function loadQuizzes() {
+    try {
+        showLoading();
+        const snapshot = await db.collection(COLLECTIONS.QUIZZES)
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        quizzesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderQuizzes(quizzesData);
+        
+        // Load courses for filter
+        const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+        const courseSelect = document.getElementById('quizCourseFilter');
+        if (courseSelect) {
+            const options = coursesSnap.docs.map(doc => 
+                `<option value="${doc.id}">${doc.data().title}</option>`
+            ).join('');
+            courseSelect.innerHTML = '<option value="">Barcha kurslar</option>' + options;
+        }
+        
+        // Load lessons for filter
+        let allLessons = [];
+        for (const courseDoc of coursesSnap.docs) {
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+                .doc(courseDoc.id)
+                .collection(COLLECTIONS.LESSONS)
+                .get();
+            lessonsSnap.docs.forEach(d => {
+                allLessons.push({ id: d.id, title: d.data().title, courseId: courseDoc.id });
+            });
+        }
+        const lessonSelect = document.getElementById('quizLessonFilter');
+        if (lessonSelect) {
+            const options = allLessons.map(l => 
+                `<option value="${l.id}">${l.title}</option>`
+            ).join('');
+            lessonSelect.innerHTML = '<option value="">Barcha darslar</option>' + options;
+        }
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Load quizzes error:', error);
+        hideLoading();
+        showToast('Testlarni yuklashda xatolik', 'error');
+    }
+}
+
+function renderQuizzes(quizzes) {
+    const container = document.getElementById('quizzesGrid');
+    if (!container) return;
+    
+    if (quizzes.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-question-circle"></i>
+                <h3>Hozircha testlar yo'q</h3>
+                <p>Yangi test qo'shish uchun "Test qo'shish" tugmasini bosing</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = quizzes.map(quiz => `
+        <div class="admin-course-card">
+            <div class="admin-course-header">
+                <div class="admin-course-actions">
+                    <button class="action-icon" onclick="editQuiz('${quiz.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-icon delete" onclick="deleteQuiz('${quiz.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="admin-course-body">
+                <h4>${quiz.title}</h4>
+                <div class="admin-course-meta">
+                    <span><i class="fas fa-clock"></i> ${quiz.timeLimit || 0} daq</span>
+                    <span><i class="fas fa-percentage"></i> O'tish: ${quiz.passingScore || 70}%</span>
+                </div>
+                <div class="admin-course-footer">
+                    <span class="badge badge-default">Savollar: ${quiz.questions?.length || 0}</span>
+                    <span class="badge ${quiz.isActive !== false ? 'badge-success' : 'badge-warning'}">
+                        ${quiz.isActive !== false ? 'Faol' : 'Nofaol'}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function showAddQuizModal() {
+    document.getElementById('quizModalTitle').textContent = 'Yangi test';
+    document.getElementById('quizForm').reset();
+    document.getElementById('quizForm').dataset.mode = 'add';
+    delete document.getElementById('quizForm').dataset.quizId;
+    document.getElementById('questionsContainer').innerHTML = '';
+    
+    // Load all lessons for select
+    const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+    let allLessons = [];
+    for (const courseDoc of coursesSnap.docs) {
+        const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+            .doc(courseDoc.id)
+            .collection(COLLECTIONS.LESSONS)
+            .get();
+        lessonsSnap.docs.forEach(d => {
+            allLessons.push({ id: d.id, title: d.data().title, courseId: courseDoc.id });
+        });
+    }
+    
+    const select = document.getElementById('lessonSelect');
+    if (select) {
+        const options = allLessons.map(l => 
+            `<option value="${l.id}" data-course="${l.courseId}">${l.title}</option>`
+        ).join('');
+        select.innerHTML = '<option value="">Darsni tanlang...</option>' + options;
+    }
+    
+    openModal('quizModal');
+}
+
+async function handleQuizSubmit(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const mode = form.dataset.mode;
+    const quizId = form.dataset.quizId;
+    
+    const lessonSelect = form.querySelector('select[name="lessonSelect"]');
+    const lessonId = lessonSelect?.value;
+    if (!lessonId) {
+        showToast('Iltimos, darsni tanlang', 'error');
+        return;
+    }
+    const courseId = lessonSelect.options[lessonSelect.selectedIndex].dataset.course;
+    
+    // Collect questions
+    const questions = [];
+    const questionCards = document.querySelectorAll('.question-card');
+    questionCards.forEach(card => {
+        const text = card.querySelector('.question-text')?.value?.trim();
+        if (!text) return;
+        
+        const options = [];
+        card.querySelectorAll('.option-input').forEach((input, idx) => {
+            options.push(input.value?.trim() || `Variant ${idx + 1}`);
+        });
+        
+        const correctAnswer = parseInt(card.querySelector('.correct-select')?.value || 0);
+        const points = parseInt(card.querySelector('.points-input')?.value || 1);
+        
+        questions.push({ text, options, correctAnswer, points });
+    });
+    
+    if (questions.length === 0) {
+        showToast('Kamida bitta savol qo\'shing', 'error');
+        return;
+    }
+    
+    const formData = {
+        title: form.querySelector('input[name="title"]').value,
+        description: form.querySelector('textarea[name="description"]').value,
+        lessonId: lessonId,
+        courseId: courseId,
+        timeLimit: parseInt(form.querySelector('input[name="timeLimit"]').value) || 10,
+        passingScore: parseInt(form.querySelector('input[name="passingScore"]').value) || 70,
+        maxAttempts: parseInt(form.querySelector('input[name="maxAttempts"]').value) || 3,
+        isActive: form.querySelector('input[name="isActive"]')?.checked !== false,
+        questions: questions,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    try {
+        showLoading();
+        
+        if (mode === 'edit' && quizId) {
+            await db.collection(COLLECTIONS.QUIZZES).doc(quizId).update(formData);
+            showToast('Test yangilandi!', 'success');
+        } else {
+            formData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection(COLLECTIONS.QUIZZES).add(formData);
+            showToast('Test qo\'shildi!', 'success');
+        }
+        
+        closeModal('quizModal');
+        loadQuizzes();
+        hideLoading();
+    } catch (error) {
+        console.error('Save quiz error:', error);
+        hideLoading();
+        showToast('Xatolik yuz berdi', 'error');
+    }
+}
+
+async function editQuiz(quizId) {
+    try {
+        const doc = await db.collection(COLLECTIONS.QUIZZES).doc(quizId).get();
+        if (!doc.exists) {
+            showToast('Test topilmadi', 'error');
+            return;
+        }
+        
+        const quiz = doc.data();
+        
+        document.getElementById('quizModalTitle').textContent = 'Testni tahrirlash';
+        document.getElementById('quizForm').dataset.mode = 'edit';
+        document.getElementById('quizForm').dataset.quizId = quizId;
+        
+        // Load lessons
+        const coursesSnap = await db.collection(COLLECTIONS.COURSES).get();
+        let allLessons = [];
+        for (const courseDoc of coursesSnap.docs) {
+            const lessonsSnap = await db.collection(COLLECTIONS.COURSES)
+                .doc(courseDoc.id)
+                .collection(COLLECTIONS.LESSONS)
+                .get();
+            lessonsSnap.docs.forEach(d => {
+                allLessons.push({ id: d.id, title: d.data().title, courseId: courseDoc.id });
+            });
+        }
+        
+        const select = document.getElementById('lessonSelect');
+        if (select) {
+            const options = allLessons.map(l => 
+                `<option value="${l.id}" data-course="${l.courseId}" ${l.id === quiz.lessonId ? 'selected' : ''}>${l.title}</option>`
+            ).join('');
+            select.innerHTML = '<option value="">Darsni tanlang...</option>' + options;
+        }
+        
+        // Fill form
+        document.querySelector('#quizForm input[name="title"]').value = quiz.title || '';
+        document.querySelector('#quizForm textarea[name="description"]').value = quiz.description || '';
+        document.querySelector('#quizForm input[name="timeLimit"]').value = quiz.timeLimit || 10;
+        document.querySelector('#quizForm input[name="passingScore"]').value = quiz.passingScore || 70;
+        document.querySelector('#quizForm input[name="maxAttempts"]').value = quiz.maxAttempts || 3;
+        const isActiveCheckbox = document.querySelector('#quizForm input[name="isActive"]');
+        if (isActiveCheckbox) isActiveCheckbox.checked = quiz.isActive !== false;
+        
+        // Render questions
+        const container = document.getElementById('questionsContainer');
+        container.innerHTML = '';
+        (quiz.questions || []).forEach((q, idx) => {
+            addQuestionField(q, idx);
+        });
+        
+        openModal('quizModal');
+    } catch (error) {
+        console.error('Edit quiz error:', error);
+        showToast('Testni yuklashda xatolik', 'error');
+    }
+}
+
+async function deleteQuiz(quizId) {
+    if (!confirm('Bu testni o\'chirishni xohlaysizmi?')) return;
+    
+    try {
+        showLoading();
+        await db.collection(COLLECTIONS.QUIZZES).doc(quizId).delete();
+        showToast('Test o\'chirildi', 'success');
+        loadQuizzes();
+        hideLoading();
+    } catch (error) {
+        console.error('Delete quiz error:', error);
+        hideLoading();
+        showToast('O\'chirishda xatolik', 'error');
+    }
+}
+
+function addQuestionField(questionData = null, index = null) {
+    const container = document.getElementById('questionsContainer');
+    const idx = index !== null ? index : container.children.length;
+    const q = questionData || { text: '', options: ['', '', '', ''], correctAnswer: 0, points: 1 };
+    
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.innerHTML = `
+        <div class="question-header">
+            <span class="question-number">Savol ${idx + 1}</span>
+            <button type="button" class="action-icon delete" onclick="this.closest('.question-card').remove(); renumberQuestions();">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-input question-text" placeholder="Savol matni..." value="${q.text}" required>
+        </div>
+        <div class="form-row options-row">
+            ${q.options.map((opt, i) => `
+                <div class="form-group">
+                    <input type="text" class="form-input option-input" placeholder="Variant ${i + 1}" value="${opt}" required>
+                </div>
+            `).join('')}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>To'g'ri javob</label>
+                <select class="form-input correct-select">
+                    <option value="0" ${q.correctAnswer === 0 ? 'selected' : ''}>Variant 1</option>
+                    <option value="1" ${q.correctAnswer === 1 ? 'selected' : ''}>Variant 2</option>
+                    <option value="2" ${q.correctAnswer === 2 ? 'selected' : ''}>Variant 3</option>
+                    <option value="3" ${q.correctAnswer === 3 ? 'selected' : ''}>Variant 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ball</label>
+                <input type="number" class="form-input points-input" value="${q.points}" min="1" max="10">
+            </div>
+        </div>
+    `;
+    container.appendChild(card);
+}
+
+function renumberQuestions() {
+    document.querySelectorAll('.question-card').forEach((card, idx) => {
+        card.querySelector('.question-number').textContent = `Savol ${idx + 1}`;
+    });
+}
+
+function handleQuizSearch(e) {
+    const query = e.target.value.toLowerCase();
+    const filtered = quizzesData.filter(quiz => 
+        quiz.title?.toLowerCase().includes(query) ||
+        (quiz.description && quiz.description.toLowerCase().includes(query))
+    );
+    renderQuizzes(filtered);
+}
+
+function handleQuizFilter() {
+    const courseId = document.getElementById('quizCourseFilter')?.value;
+    const lessonId = document.getElementById('quizLessonFilter')?.value;
+    
+    let filtered = quizzesData;
+    
+    if (courseId) {
+        filtered = filtered.filter(q => q.courseId === courseId);
+    }
+    
+    if (lessonId) {
+        filtered = filtered.filter(q => q.lessonId === lessonId);
+    }
+    
+    renderQuizzes(filtered);
+}
+
+// ============================================
 // REALTIME LISTENERS
 // ============================================
 function initRealtimeListeners() {
@@ -714,12 +1783,35 @@ function showToast(message, type = 'info') {
 function formatDate(timestamp) {
     if (!timestamp) return '-';
     
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('uz-UZ', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-    });
+    try {
+        let date;
+        if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+            // Firestore Timestamp
+            date = timestamp.toDate();
+        } else if (timestamp.seconds) {
+            // Firestore Timestamp object (serialized)
+            date = new Date(timestamp.seconds * 1000);
+        } else if (typeof timestamp === 'number') {
+            // Unix timestamp in ms
+            date = new Date(timestamp);
+        } else if (typeof timestamp === 'string') {
+            // ISO string
+            date = new Date(timestamp);
+        } else {
+            date = new Date(timestamp);
+        }
+        
+        if (isNaN(date.getTime())) return '-';
+        
+        return date.toLocaleDateString('uz-UZ', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    } catch (e) {
+        console.warn('Date parse error:', e, timestamp);
+        return '-';
+    }
 }
 
 function debounce(func, wait) {

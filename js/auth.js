@@ -35,12 +35,16 @@ const AuthService = {
             
             hideLoading();
             showToast('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!', 'success');
-            
-            // Redirect to dashboard or home
+
+            // Check for redirect URL
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            sessionStorage.removeItem('redirectAfterLogin');
+
+            // Redirect
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = redirectUrl || 'dashboard.html';
             }, 1500);
-            
+
             return user;
         } catch (error) {
             hideLoading();
@@ -65,12 +69,16 @@ const AuthService = {
             
             hideLoading();
             showToast('Tizimga muvaffaqiyatli kirdingiz!', 'success');
-            
+
+            // Check for redirect URL
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            sessionStorage.removeItem('redirectAfterLogin');
+
             // Redirect
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = redirectUrl || 'dashboard.html';
             }, 1500);
-            
+
             return user;
         } catch (error) {
             hideLoading();
@@ -98,11 +106,15 @@ const AuthService = {
             
             hideLoading();
             showToast('Google orqali muvaffaqiyatli kirdingiz!', 'success');
-            
+
+            // Check for redirect URL
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            sessionStorage.removeItem('redirectAfterLogin');
+
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = redirectUrl || 'dashboard.html';
             }, 1500);
-            
+
             return user;
         } catch (error) {
             hideLoading();
@@ -130,11 +142,15 @@ const AuthService = {
             
             hideLoading();
             showToast('Apple orqali muvaffaqiyatli kirdingiz!', 'success');
-            
+
+            // Check for redirect URL
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            sessionStorage.removeItem('redirectAfterLogin');
+
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = redirectUrl || 'dashboard.html';
             }, 1500);
-            
+
             return user;
         } catch (error) {
             hideLoading();
