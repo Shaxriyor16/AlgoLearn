@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxfiylik siyosati - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, rgb(var(--primary-600)) 0%, rgb(var(--primary-800)) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .content-section {
+            padding: 3rem 0;
+        }
+        
+        .legal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgb(var(--bg-primary));
+            padding: 2.5rem;
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .legal-container h2 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .legal-container h2:first-child {
+            margin-top: 0;
+        }
+        
+        .legal-container p {
+            color: rgb(var(--text-secondary));
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .legal-container ul {
+            color: rgb(var(--text-secondary));
+            line-height: 1.8;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .privacy-card {
+            background: rgb(var(--bg-secondary));
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid rgb(var(--primary-500));
+        }
+        
+        .privacy-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .privacy-card p {
+            margin-bottom: 0;
+            font-size: 0.9375rem;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: rgb(var(--text-tertiary));
+            font-size: 0.875rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgb(var(--border-light));
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses">Kurslar</a>
+                <a href="../index.html#about">Biz haqimizda</a>
+            </div>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline">Kirish</a>
+                <a href="register.html" class="btn btn-primary">Ro'yxatdan o'tish</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-shield-alt"></i> Maxfiylik siyosati</h1>
+            <p>Shaxsiy ma'lumotlaringizni qanday himoya qilishimiz</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <section class="content-section">
+        <div class="container">
+            <div class="legal-container">
+                <h2>Ma'lumotlaringizni himoya qilish - bizning ustuvor vazifamiz</h2>
+                <p>AlgoLearn platformasi foydalanuvchilarining maxfiyligini qadrlaydi. Ushbu siyosat biz qanday ma'lumotlarni yig'ishimiz va ulardan qanday foydalanishimizni tushuntiradi.</p>
+                
+                <div class="privacy-card">
+                    <h3><i class="fas fa-user" style="color: rgb(var(--primary-500));"></i> Qanday ma'lumotlarni yig'amiz?</h3>
+                    <p>Ism, email, parol, kurslarga yozilish ma'lumotlari, test natijalari va saytdagi faolligingiz.</p>
+                </div>
+                
+                <div class="privacy-card">
+                    <h3><i class="fas fa-bullseye" style="color: rgb(var(--primary-500));"></i> Ma'lumotlardan qanday maqsadda foydalanamiz?</h3>
+                    <p>Kurslarni yaxshilash, shaxsiy tavsiyalar berish, texnik qo'llab-quvvatlash va platformani rivojlantirish.</p>
+                </div>
+                
+                <div class="privacy-card">
+                    <h3><i class="fas fa-lock" style="color: rgb(var(--primary-500));"></i> Ma'lumotlar xavfsizligi</h3>
+                    <p>Barcha ma'lumotlar shifrlanadi va Firebase xavfsiz serverlarida saqlanadi. Parollar hash qilingan holda saqlanadi.</p>
+                </div>
+                
+                <div class="privacy-card">
+                    <h3><i class="fas fa-share-alt" style="color: rgb(var(--primary-500));"></i> Uchinchi tomonlarga ulashish</h3>
+                    <p>Sizning ma'lumotlaringiz uchinchi tomonlarga sotilmaydi yoki berilmaydi, faqat qonun talab qilganda.</p>
+                </div>
+                
+                <h2>Cookie fayllar</h2>
+                <p>Sayt tomonidan cookie fayllaridan foydalaniladi. Ular sizning sozlamalaringizni saqlash va saytdagi tajribangizni yaxshilash uchun ishlatiladi.</p>
+                
+                <h2>Huquqlaringiz</h2>
+                <ul>
+                    <li>O'z ma'lumotlaringizni ko'rish</li>
+                    <li>Ma'lumotlaringizni tahrirlash yoki o'chirish</li>
+                    <li>Akkauntni o'chirish</li>
+                    <li>Marketing xabarnomalardan voz kechish</li>
+                </ul>
+                
+                <h2>Aloqa</h2>
+                <p>Maxfiylik bo'yicha savollaringiz bo'lsa, support@algolearn.uz emailiga murojaat qilishingiz mumkin.</p>
+                
+                <div class="last-updated">
+                    <i class="fas fa-calendar"></i> So'nggi yangilanish: 2026-yil 1-yanvar
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoLearn. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

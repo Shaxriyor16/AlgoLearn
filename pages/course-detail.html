@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurs Tafsilotlari - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .course-detail {
+            padding-top: calc(var(--header-height) + 2rem);
+            padding-bottom: 4rem;
+        }
+        
+        .course-header {
+            background: linear-gradient(135deg, rgb(var(--primary-600)) 0%, rgb(var(--primary-800)) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .course-header-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        @media (max-width: 768px) {
+            .course-header-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .course-thumbnail {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .course-thumbnail img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .course-info h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .course-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .course-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .course-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .course-body {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .course-body {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Lessons Section */
+        .lessons-section {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            overflow: hidden;
+        }
+        
+        .lessons-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgb(var(--border-light));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .lessons-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .lessons-progress {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        /* Lesson Cards */
+        .lesson-list {
+            padding: 1rem;
+        }
+        
+        .lesson-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            background-color: rgb(var(--bg-secondary));
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .lesson-card:hover {
+            border-color: rgb(var(--primary-200));
+            transform: translateX(4px);
+        }
+        
+        .lesson-card.active {
+            border-color: rgb(var(--primary-500));
+            background-color: rgb(var(--primary-50));
+        }
+        
+        .lesson-card.completed {
+            opacity: 0.7;
+        }
+        
+        .lesson-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Lesson Number */
+        .lesson-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            background-color: rgb(var(--bg-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .lesson-card.active .lesson-number {
+            background-color: rgb(var(--primary-500));
+            color: white;
+        }
+        
+        .lesson-card.completed .lesson-number {
+            background-color: rgb(var(--success-500));
+            color: white;
+        }
+        
+        /* Lesson Info */
+        .lesson-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .lesson-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .lesson-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        .lesson-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        /* Badges */
+        .lesson-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-quiz {
+            background-color: rgb(var(--warning-100));
+            color: rgb(var(--warning-700));
+        }
+        
+        .badge-completed {
+            background-color: rgb(var(--success-100));
+            color: rgb(var(--success-700));
+        }
+        
+        .badge-video {
+            background-color: rgb(var(--primary-100));
+            color: rgb(var(--primary-700));
+        }
+        
+        .badge-locked {
+            background-color: rgb(var(--bg-tertiary));
+            color: rgb(var(--text-tertiary));
+        }
+        
+        /* Lesson Status */
+        .lesson-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            flex-shrink: 0;
+        }
+        
+        .lesson-status i {
+            font-size: 1.25rem;
+        }
+        
+        .lesson-card.completed .lesson-status {
+            color: rgb(var(--success-500));
+        }
+        
+        .lesson-card.active .lesson-status {
+            color: rgb(var(--primary-500));
+        }
+        
+        .lesson-card.locked .lesson-status {
+            color: rgb(var(--text-tertiary));
+        }
+        
+        /* Sidebar */
+        .course-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* Instructor Card */
+        .instructor-card {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            padding: 1.5rem;
+        }
+        
+        .instructor-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .instructor-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: rgb(var(--bg-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        /* Course Stats */
+        .course-stats {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            padding: 1.5rem;
+        }
+        
+        .course-stats h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgb(var(--border-light));
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Start Learning Button */
+        .start-learning-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgb(var(--primary-600));
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .start-learning-btn:hover {
+            background-color: rgb(var(--primary-700));
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <nav class="nav-menu">
+                <a href="../index.html#courses" class="nav-link">Kurslar</a>
+                <a href="../index.html#about" class="nav-link">Biz haqimizda</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-user"></i>
+                    <span>Kabinet</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Course Detail -->
+    <main class="course-detail">
+        <!-- Course Header -->
+        <div class="course-header">
+            <div class="container">
+                <div class="course-header-content">
+                    <div class="course-thumbnail">
+                        <img src="../images/course1.jpg" alt="JavaScript asoslari">
+                    </div>
+                    <div class="course-info">
+                        <span class="badge" style="background-color: rgba(255,255,255,0.2); color: white; margin-bottom: 1rem; display: inline-block;">Dasturlash</span>
+                        <h1>JavaScript asoslari</h1>
+                        <p style="opacity: 0.9; margin-bottom: 1.5rem; line-height: 1.6;">
+                            JavaScript tilini noldan o'rganing. Zamonaviy ES6+ sintaksisi, asinxron dasturlash, DOM manipulyatsiyasi va real loyihalar.
+                        </p>
+                        <div class="course-meta">
+                            <span><i class="fas fa-user-tie"></i> Anvarov Anvar</span>
+                            <span><i class="fas fa-signal"></i> Boshlang'ich</span>
+                            <span><i class="fas fa-clock"></i> 15 soat</span>
+                            <span><i class="fas fa-book"></i> 24 dars</span>
+                            <span><i class="fas fa-users"></i> 1,234 o'quvchi</span>
+                        </div>
+                        <div class="course-actions">
+                            <button class="btn btn-white" onclick="startLearning()">
+                                <i class="fas fa-play"></i>
+                                Boshlash
+                            </button>
+                            <button class="btn btn-outline-white" onclick="bookmarkCourse()">
+                                <i class="far fa-bookmark"></i>
+                                Saqlash
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Body -->
+        <div class="container">
+            <div class="course-body">
+                <!-- Lessons Section -->
+                <div class="lessons-section">
+                    <div class="lessons-header">
+                        <h2><i class="fas fa-list-ul"></i> Kurs darslari</h2>
+                        <span class="lessons-progress">5 / 24 tugallandi</span>
+                    </div>
+                    <div class="lesson-list" id="lessonList">
+                        <!-- Lesson 1 - Completed -->
+                        <div class="lesson-card completed" data-lesson-id="1" onclick="openLesson(1)">
+                            <div class="lesson-number">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="lesson-info">
+                                <h3>1. Kirish va o'rnatish</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 12:34</span>
+                                    <span><i class="fas fa-play-circle"></i> Ko'rildi</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 2 - Completed with Quiz -->
+                        <div class="lesson-card completed" data-lesson-id="2" onclick="openLesson(2)">
+                            <div class="lesson-number">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="lesson-info">
+                                <h3>2. O'zgaruvchilar va ma'lumot turlari</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 18:45</span>
+                                    <span><i class="fas fa-check-circle"></i> Tugallandi</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-completed"><i class="fas fa-check"></i> Topshirildi</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 3 - Active with Quiz -->
+                        <div class="lesson-card active" data-lesson-id="3" onclick="openLesson(3)">
+                            <div class="lesson-number">3</div>
+                            <div class="lesson-info">
+                                <h3>3. Operatorlar va shartlar</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 22:15</span>
+                                    <span><i class="fas fa-play"></i> Hozir ko'rilmoqda</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 4 - Has Quiz -->
+                        <div class="lesson-card" data-lesson-id="4" onclick="openLesson(4)">
+                            <div class="lesson-number">4</div>
+                            <div class="lesson-info">
+                                <h3>4. Tsikllar (Loops)</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 19:30</span>
+                                    <span><i class="fas fa-lock-open"></i> Ochiq</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 5 - Has Quiz -->
+                        <div class="lesson-card" data-lesson-id="5" onclick="openLesson(5)">
+                            <div class="lesson-number">5</div>
+                            <div class="lesson-info">
+                                <h3>5. Funksiyalar</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 25:00</span>
+                                    <span><i class="fas fa-lock-open"></i> Ochiq</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 6 - Locked -->
+                        <div class="lesson-card locked" data-lesson-id="6">
+                            <div class="lesson-number">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="lesson-info">
+                                <h3>6. Massivlar (Arrays)</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 21:45</span>
+                                    <span><i class="fas fa-lock"></i> Bloklangan</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-locked"><i class="fas fa-lock"></i> Avvalgi darsni tugating</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lesson 7 - Locked with Quiz indicator -->
+                        <div class="lesson-card locked" data-lesson-id="7">
+                            <div class="lesson-number">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="lesson-info">
+                                <h3>7. Obyektlar (Objects)</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 24:20</span>
+                                    <span><i class="fas fa-lock"></i> Bloklangan</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-locked"><i class="fas fa-lock"></i> Avvalgi darsni tugating</span>
+                                    <span class="badge badge-quiz" style="opacity: 0.5;"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+
+                        <!-- More lessons... -->
+                        <div class="lesson-card" data-lesson-id="8" onclick="openLesson(8)">
+                            <div class="lesson-number">8</div>
+                            <div class="lesson-info">
+                                <h3>8. DOM manipulyatsiyasi</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 28:00</span>
+                                    <span><i class="fas fa-code"></i> Amaliy</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="lesson-card" data-lesson-id="9" onclick="openLesson(9)">
+                            <div class="lesson-number">9</div>
+                            <div class="lesson-info">
+                                <h3>9. Hodisalar (Events)</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 20:15</span>
+                                    <span><i class="fas fa-code"></i> Amaliy</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="lesson-card" data-lesson-id="10" onclick="openLesson(10)">
+                            <div class="lesson-number">10</div>
+                            <div class="lesson-info">
+                                <h3>10. Asinxron JavaScript</h3>
+                                <div class="lesson-meta">
+                                    <span><i class="fas fa-clock"></i> 32:00</span>
+                                    <span><i class="fas fa-code"></i> Amaliy</span>
+                                </div>
+                                <div class="lesson-badges">
+                                    <span class="badge badge-video"><i class="fas fa-video"></i> Video</span>
+                                    <span class="badge badge-quiz"><i class="fas fa-question-circle"></i> Test bor</span>
+                                </div>
+                            </div>
+                            <div class="lesson-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="course-sidebar">
+                    <!-- Start Learning -->
+                    <button class="start-learning-btn" onclick="startLearning()">
+                        <i class="fas fa-play"></i>
+                        O'rganishni boshlash
+                    </button>
+
+                    <!-- Course Stats -->
+                    <div class="course-stats">
+                        <h3><i class="fas fa-chart-bar"></i> Kurs ma'lumotlari</h3>
+                        <div class="stat-item">
+                            <span>Davomiylik</span>
+                            <strong>15 soat 30 daqiqa</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Darslar soni</span>
+                            <strong>24 ta</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Testlar</span>
+                            <strong>12 ta</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Sertifikat</span>
+                            <strong>Ha</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Daraja</span>
+                            <strong>Boshlang'ich</strong>
+                        </div>
+                    </div>
+
+                    <!-- Instructor -->
+                    <div class="instructor-card">
+                        <h3><i class="fas fa-chalkboard-teacher"></i> O'qituvchi</h3>
+                        <div class="instructor-info">
+                            <div class="instructor-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">Anvarov Anvar</div>
+                                <div style="font-size: 0.875rem; color: rgb(var(--text-secondary));">Senior Developer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Open Lesson
+        function openLesson(lessonId) {
+            const card = document.querySelector(`[data-lesson-id="${lessonId}"]`);
+            if (card.classList.contains('locked')) {
+                showToast('Avvalgi darsni tugating!', 'warning');
+                return;
+            }
+            window.location.href = `video.html?lesson=${lessonId}`;
+        }
+
+        // Start Learning
+        function startLearning() {
+            // Find first incomplete lesson
+            const firstIncomplete = document.querySelector('.lesson-card:not(.completed):not(.locked)');
+            if (firstIncomplete) {
+                const lessonId = firstIncomplete.dataset.lessonId;
+                openLesson(lessonId);
+            }
+        }
+
+        // Bookmark Course
+        function bookmarkCourse() {
+            showToast('Kurs saqlandi!', 'success');
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'info') {
+            // Simple alert for demo
+            alert(message);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qo'llanma - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, rgb(var(--primary-600)) 0%, rgb(var(--primary-800)) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .content-section {
+            padding: 3rem 0;
+        }
+        
+        .guide-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .guide-step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: rgb(var(--primary-500));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .step-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .step-content p {
+            color: rgb(var(--text-secondary));
+            line-height: 1.6;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 640px) {
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .tip-card {
+            background: rgb(var(--bg-primary));
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .tip-card i {
+            font-size: 2rem;
+            color: rgb(var(--primary-500));
+            margin-bottom: 1rem;
+        }
+        
+        .tip-card h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tip-card p {
+            color: rgb(var(--text-secondary));
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses">Kurslar</a>
+                <a href="../index.html#about">Biz haqimizda</a>
+            </div>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline">Kirish</a>
+                <a href="register.html" class="btn btn-primary">Ro'yxatdan o'tish</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-book"></i> Qo'llanma</h1>
+            <p>Platformadan qanday foydalanish bo'yicha qo'llanma</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <section class="content-section">
+        <div class="container">
+            <div class="guide-container">
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Ro'yxatdan o'tish</h3>
+                        <p>Saytga kirib, "Ro'yxatdan o'tish" tugmasini bosing. Email, parol va ismingizni kiriting. Tasdiqlash xatini kuting va akkauntni faollashtiring.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Kurs tanlash</h3>
+                        <p>Kategoriyalardan o'zingizga qiziqarli yo'nalishni tanlang. Har bir kurs haqida batafsil ma'lumot oling va o'zingizga mosini toping.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Kursga yozilish</h3>
+                        <p>Tanlangan kurs sahifasida "Kursga yozilish" tugmasini bosing. Kurs avtomatik ravishda sizning profilingizga qo'shiladi.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Darslarni o'tish</h3>
+                        <p>Darslar ketma-ketligida videolarni tomosha qiling. Har bir darsdan keyin testlarni yeching va bilimingizni mustahkamlang.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Sertifikat olish</h3>
+                        <p>Kursni tugatganingizdan so'ng, avtomatik ravishda sertifikat yuklab olish imkoniyati paydo bo'ladi.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 style="text-align: center; margin: 3rem 0 1.5rem;">Foydali maslahatlar</h2>
+            
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h4>Reja tuzing</h4>
+                    <p>Har kuni ma'lum vaqtda o'qish uchun rejani tuzing. Muntazamlik - muvaffaqiyat kaliti.</p>
+                </div>
+                
+                <div class="tip-card">
+                    <i class="fas fa-pencil-alt"></i>
+                    <h4>Eslatmalar yozing</h4>
+                    <p>Dars jarayonida muhim nuqtalarni yozib oling. Bu keyinroq qayta ko'rib chiqishga yordam beradi.</p>
+                </div>
+                
+                <div class="tip-card">
+                    <i class="fas fa-code"></i>
+                    <h4>Amaliy mashqlar</h4>
+                    <p>Har bir darsdan keyin o'zingiz mustaqil mashqlar qiling. Amaliyot - bilimni mustahkamlashning eng yaxshi usuli.</p>
+                </div>
+                
+                <div class="tip-card">
+                    <i class="fas fa-users"></i>
+                    <h4>Jamoa bilan aloqa</h4>
+                    <p>Boshqa o'quvchilar bilan fikr almashing. Savollaringizni forumda berishdan qo'rqmang.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoLearn. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategoriya - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .category-page {
+            padding-top: calc(var(--header-height) + 2rem);
+            padding-bottom: 4rem;
+            min-height: 100vh;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, rgb(var(--primary-600)) 0%, rgb(var(--primary-800)) 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .category-icon-large {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .category-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgb(var(--text-secondary));
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: rgb(var(--primary-600));
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .courses-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Course Card Styles */
+        .course-card {
+            background: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .course-thumbnail {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+        
+        .course-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .course-card:hover .course-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .course-badge {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            background: rgb(var(--success-500));
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        
+        .course-duration {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+        
+        .course-content {
+            padding: 1.25rem;
+        }
+        
+        .course-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: rgb(var(--text-primary));
+            line-height: 1.4;
+        }
+        
+        .course-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: rgb(var(--text-secondary));
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .course-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid rgb(var(--border-light));
+        }
+        
+        .course-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .course-author img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+        
+        .course-author span {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        .course-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: rgb(var(--warning-500));
+            font-weight: 600;
+        }
+        
+        .courses-loading {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgb(var(--bg-primary)) 0%, rgb(var(--bg-secondary)) 100%);
+            border-radius: 1.5rem;
+            border: 2px dashed rgb(var(--border-light));
+            margin-top: 2rem;
+        }
+        
+        .courses-loading .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgb(var(--border-light));
+            border-top-color: rgb(var(--primary-500));
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .courses-loading p {
+            color: rgb(var(--text-secondary));
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .empty-courses {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgb(var(--bg-primary)) 0%, rgb(var(--bg-secondary)) 100%);
+            border-radius: 1.5rem;
+            border: 2px dashed rgb(var(--border-light));
+            margin-top: 2rem;
+        }
+        
+        .empty-courses .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, rgb(var(--primary-100)) 0%, rgb(var(--primary-200)) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 10px 40px rgba(var(--primary-500), 0.15);
+        }
+        
+        .empty-courses .empty-icon i {
+            font-size: 3.5rem;
+            color: rgb(var(--primary-600));
+        }
+        
+        .empty-courses h3 {
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+            color: rgb(var(--text-primary));
+            font-weight: 700;
+        }
+        
+        .empty-courses p {
+            color: rgb(var(--text-secondary));
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .suggested-categories {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgb(var(--border-light));
+        }
+        
+        .suggested-categories h4 {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: rgb(var(--text-primary));
+            text-align: center;
+        }
+        
+        .mini-categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .mini-category {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgb(var(--bg-primary));
+            border: 1px solid rgb(var(--border-light));
+            border-radius: 0.75rem;
+            text-decoration: none;
+            color: rgb(var(--text-secondary));
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .mini-category:hover {
+            border-color: rgb(var(--primary-500));
+            color: rgb(var(--primary-600));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .mini-category i {
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation - Solid Dark Blue for Category Page -->
+    <nav class="navbar navbar-category">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses" class="active">Kurslar</a>
+                <a href="../index.html#about">Biz haqimizda</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="login.html" class="btn btn-outline">Kirish</a>
+                <a href="register.html" class="btn btn-primary">Ro'yxatdan o'tish</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Category Header -->
+    <div class="category-header">
+        <div class="container">
+            <div class="category-header-content">
+                <div class="category-icon-large" id="categoryIcon">
+                    <i class="fab fa-js"></i>
+                </div>
+                <div>
+                    <h1 id="categoryName">JavaScript</h1>
+                    <p id="categoryDesc">Web dasturlash kurslari</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="category-page">
+        <div class="container">
+            <a href="../index.html#courses" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Barcha kategoriyalar
+            </a>
+            
+            <!-- Loading State -->
+            <div class="courses-loading" id="coursesLoading">
+                <div class="loading-spinner"></div>
+                <p>Kurslar yuklanmoqda...</p>
+            </div>
+            
+            <!-- Courses Grid -->
+            <div class="courses-grid" id="coursesGrid">
+                <!-- Courses will be loaded dynamically -->
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-courses" id="emptyCourses" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3>Hozircha kurslar yo'q</h3>
+                <p>Bu kategoriyada hali kurslar mavjud emas. Boshqa kategoriyalarni ko'rib chiqing.</p>
+                <a href="../index.html#courses" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Barcha kategoriyalar
+                </a>
+                
+                <!-- Suggested Categories - Dynamic -->
+                <div class="suggested-categories" id="suggestedCategories" style="padding: 3rem 0; margin-top: 2rem;">
+                    <h4>Boshqa kategoriyalar</h4>
+                    <div class="mini-categories" id="miniCategories">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: rgb(var(--bg-secondary)); padding: 3rem 0 1.5rem; margin-top: 3rem; border-top: 1px solid rgb(var(--border-light));">
+        <div class="container">
+            <div class="footer-grid" style="display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 3rem; margin-bottom: 2rem;">
+                <div class="footer-brand" style="max-width: 300px;">
+                    <a href="../index.html" class="logo" style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; color: rgb(var(--primary-600)); text-decoration: none; margin-bottom: 1rem;">
+                        <i class="fas fa-graduation-cap" style="font-size: 2rem;"></i>
+                        <span>AlgoLearn</span>
+                    </a>
+                    <p style="color: rgb(var(--text-secondary)); line-height: 1.6;">Zamonaviy dasturlash kurslari va algoritmlar platformasi</p>
+                </div>
+                <div class="footer-links" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h4 style="font-size: 1.125rem; font-weight: 600; color: rgb(var(--text-primary)); margin-bottom: 0.5rem;">Platforma</h4>
+                    <a href="../index.html#courses" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Kurslar</a>
+                    <a href="../index.html#about" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Biz haqimizda</a>
+                    <a href="blog.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Blog</a>
+                </div>
+                <div class="footer-links" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h4 style="font-size: 1.125rem; font-weight: 600; color: rgb(var(--text-primary)); margin-bottom: 0.5rem;">Yordam</h4>
+                    <a href="faq.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">FAQ</a>
+                    <a href="contact.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Aloqa</a>
+                    <a href="guide.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Qo'llanma</a>
+                </div>
+                <div class="footer-links" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h4 style="font-size: 1.125rem; font-weight: 600; color: rgb(var(--text-primary)); margin-bottom: 0.5rem;">Huquqiy</h4>
+                    <a href="terms.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Shartlar</a>
+                    <a href="privacy.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Maxfiylik</a>
+                    <a href="cookies.html" style="color: rgb(var(--text-secondary)); text-decoration: none; transition: color 0.2s;">Cookie</a>
+                </div>
+            </div>
+            <div class="footer-bottom" style="text-align: center; padding-top: 2rem; border-top: 1px solid rgb(var(--border-light)); color: rgb(var(--text-tertiary));">
+                <p>&copy; 2026 AlgoLearn. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    
+    <!-- Dark Theme Toggle Script -->
+    <script>
+        // Dark Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+    </script>
+    
+    <script>
+        // Get category from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('cat') || 'javascript';
+        
+        // Category data
+        const categoryData = {
+            javascript: {
+                name: 'JavaScript',
+                icon: 'fab fa-js',
+                desc: 'Web dasturlash kurslari',
+                color: '#f59e0b'
+            },
+            python: {
+                name: 'Python',
+                icon: 'fab fa-python',
+                desc: 'Data Science & AI kurslari',
+                color: '#3b82f6'
+            },
+            react: {
+                name: 'React',
+                icon: 'fab fa-react',
+                desc: 'Frontend kutubxonasi kurslari',
+                color: '#61dafb'
+            },
+            flutter: {
+                name: 'Flutter',
+                icon: 'fas fa-mobile-alt',
+                desc: 'Mobile ilova kurslari',
+                color: '#027dfd'
+            },
+            dart: {
+                name: 'Dart',
+                icon: 'fas fa-code',
+                desc: 'Flutter tili kurslari',
+                color: '#00b4ab'
+            },
+            go: {
+                name: 'Go',
+                icon: 'fab fa-golang',
+                desc: 'Backend dasturlash kurslari',
+                color: '#00add8'
+            },
+            php: {
+                name: 'PHP',
+                icon: 'fab fa-php',
+                desc: 'Web backend kurslari',
+                color: '#777bb4'
+            },
+            java: {
+                name: 'Java',
+                icon: 'fab fa-java',
+                desc: 'OOP dasturlash kurslari',
+                color: '#ed8b00'
+            },
+            cpp: {
+                name: 'C++',
+                icon: 'fas fa-microchip',
+                desc: 'Tizim dasturlash kurslari',
+                color: '#00599c'
+            }
+        };
+        
+        // Update header
+        const catData = categoryData[category] || categoryData.javascript;
+        document.getElementById('categoryName').textContent = catData.name;
+        document.getElementById('categoryDesc').textContent = catData.desc;
+        document.getElementById('categoryIcon').innerHTML = `<i class="${catData.icon}"></i>`;
+        document.getElementById('categoryIcon').style.background = catData.color + '33';
+        
+        // Load courses
+        async function loadCourses() {
+            const loading = document.getElementById('coursesLoading');
+            const grid = document.getElementById('coursesGrid');
+            const empty = document.getElementById('emptyCourses');
+            
+            try {
+                const snapshot = await firebase.firestore()
+                    .collection('courses')
+                    .where('category', '==', catData.name)
+                    .where('isActive', '!=', false)
+                    .get();
+                
+                loading.style.display = 'none';
+                
+                if (snapshot.empty) {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                    return;
+                }
+                
+                grid.innerHTML = snapshot.docs.map(doc => {
+                    const course = doc.data();
+                    return `
+                        <div class="course-card" onclick="window.location.href='course-detail.html?id=${doc.id}'">
+                            <div class="course-thumbnail">
+                                <img src="${course.thumbnail || 'https://via.placeholder.com/400x225?text=' + encodeURIComponent(course.title)}" alt="${course.title}">
+                                ${course.isFree !== false ? '<span class="course-badge">Bepul</span>' : ''}
+                                <span class="course-duration">${course.totalDuration || 0} daq</span>
+                            </div>
+                            <div class="course-content">
+                                <h3 class="course-title">${course.title}</h3>
+                                <div class="course-meta">
+                                    <span><i class="fas fa-play-circle"></i> ${course.lessonCount || 0} dars</span>
+                                    <span><i class="fas fa-user"></i> ${course.enrolledCount || 0}</span>
+                                </div>
+                                <div class="course-footer">
+                                    <div class="course-author">
+                                        <span>${course.authorName || 'AlgoLearn'}</span>
+                                    </div>
+                                    <div class="course-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>${course.rating || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        }
+        
+        // Load suggested categories (exclude current)
+        function loadSuggestedCategories() {
+            const miniCategories = document.getElementById('miniCategories');
+            const currentCat = category;
+            
+            // All categories except current
+            const otherCategories = Object.entries(categoryData)
+                .filter(([key, value]) => key !== currentCat)
+                .slice(0, 4); // Show max 4
+            
+            miniCategories.innerHTML = otherCategories.map(([key, data]) => `
+                <a href="category.html?cat=${key}" class="mini-category">
+                    <i class="${data.icon}" style="color: ${data.color};"></i>
+                    ${data.name}
+                </a>
+            `).join('');
+        }
+        
+        // Load everything on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCourses();
+            loadSuggestedCategories();
+        });
+    </script>
+</body>
+</html>

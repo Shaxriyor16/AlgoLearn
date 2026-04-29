@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .video-player-page {
+            padding-top: calc(var(--header-height) + 1rem);
+            padding-bottom: 4rem;
+            background-color: rgb(var(--bg-secondary));
+            min-height: 100vh;
+        }
+        
+        .video-player-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .video-player-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Main Player Area */
+        .player-main {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Video Wrapper */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+        }
+        
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Custom Controls Overlay */
+        .video-controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 2rem 1rem 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-wrapper:hover .video-controls-overlay {
+            opacity: 1;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+        
+        .progress-container:hover {
+            height: 6px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: rgb(var(--primary-500));
+            border-radius: 2px;
+            width: 0%;
+            position: relative;
+        }
+        
+        .progress-handle {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background-color: rgb(var(--primary-500));
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .progress-container:hover .progress-handle {
+            opacity: 1;
+        }
+        
+        /* Control Buttons */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+        }
+        
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .control-btn.play-pause {
+            font-size: 1.5rem;
+        }
+        
+        /* Volume Control */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .volume-slider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Time Display */
+        .time-display {
+            font-size: 0.875rem;
+            font-variant-numeric: tabular-nums;
+            min-width: 100px;
+        }
+        
+        /* Right Side Controls */
+        .controls-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Settings Menu */
+        .settings-menu {
+            position: relative;
+        }
+        
+        .settings-dropdown {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background-color: rgba(0,0,0,0.9);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0;
+            min-width: 180px;
+            display: none;
+            margin-bottom: 0.5rem;
+        }
+        
+        .settings-dropdown.active {
+            display: block;
+        }
+        
+        .settings-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s;
+        }
+        
+        .settings-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .settings-item i {
+            font-size: 0.875rem;
+        }
+        
+        /* Video Info */
+        .video-info {
+            padding: 1.5rem;
+        }
+        
+        .video-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .video-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: rgb(var(--text-secondary));
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .video-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Action Buttons */
+        .video-actions {
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgb(var(--border-light));
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background-color: rgb(var(--bg-secondary));
+            border: 1px solid rgb(var(--border-light));
+            border-radius: 0.5rem;
+            color: rgb(var(--text-primary));
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: rgb(var(--bg-tertiary));
+        }
+        
+        .action-btn.primary {
+            background-color: rgb(var(--primary-600));
+            color: white;
+            border-color: rgb(var(--primary-600));
+        }
+        
+        .action-btn.primary:hover {
+            background-color: rgb(var(--primary-700));
+        }
+        
+        /* Sidebar */
+        .video-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        /* Course Progress */
+        .course-progress {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .course-progress h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+        
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgb(var(--border-light));
+            stroke-width: 8;
+        }
+        
+        .progress-ring-fill {
+            fill: none;
+            stroke: rgb(var(--primary-500));
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgb(var(--primary-600));
+        }
+        
+        /* Playlist */
+        .playlist {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            overflow: hidden;
+        }
+        
+        .playlist-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgb(var(--border-light));
+        }
+        
+        .playlist-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .playlist-header p {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+            margin-top: 0.25rem;
+        }
+        
+        .playlist-items {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .playlist-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid rgb(var(--border-light));
+        }
+        
+        .playlist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .playlist-item:hover {
+            background-color: rgb(var(--bg-secondary));
+        }
+        
+        .playlist-item.active {
+            background-color: rgb(var(--primary-50));
+            border-left: 3px solid rgb(var(--primary-500));
+        }
+        
+        .playlist-item.completed {
+            opacity: 0.6;
+        }
+        
+        .playlist-item.completed .item-status {
+            color: rgb(var(--success-500));
+        }
+        
+        .playlist-thumb {
+            width: 100px;
+            height: 56px;
+            border-radius: 0.5rem;
+            background-color: rgb(var(--bg-tertiary));
+            position: relative;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .playlist-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .playlist-thumb .duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        .playlist-item.active .playlist-thumb::after {
+            content: '\f04b';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .playlist-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .playlist-info h4 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .playlist-info p {
+            font-size: 0.75rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        .item-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            color: rgb(var(--text-tertiary));
+        }
+        
+        .playlist-item.has-quiz .item-status::after {
+            content: '\f059';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.875rem;
+            color: rgb(var(--warning-500));
+        }
+        
+        /* Quiz Section */
+        .quiz-section {
+            background: linear-gradient(135deg, rgb(var(--primary-50)) 0%, rgb(var(--bg-primary)) 100%);
+            border: 2px solid rgb(var(--primary-200));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .quiz-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: rgb(var(--primary-700));
+            margin-bottom: 0.75rem;
+        }
+        
+        .quiz-section p {
+            color: rgb(var(--text-secondary));
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            background-color: rgb(var(--primary-600));
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quiz-btn:hover {
+            background-color: rgb(var(--primary-700));
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .video-player-container {
+                padding: 0;
+            }
+            
+            .player-main {
+                border-radius: 0;
+            }
+            
+            .video-info {
+                padding: 1rem;
+            }
+            
+            .video-info h1 {
+                font-size: 1.125rem;
+            }
+            
+            .video-actions {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <nav class="nav-menu">
+                <a href="../index.html#courses" class="nav-link">Kurslar</a>
+                <a href="../index.html#about" class="nav-link">Biz haqimizda</a>
+                <a href="../index.html#blog" class="nav-link">Blog</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn btn-ghost btn-icon" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-primary" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Chiqish</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Video Player Page -->
+    <main class="video-player-page">
+        <div class="video-player-container">
+            <!-- Main Player -->
+            <div class="player-main">
+                <!-- Video Player -->
+                <div class="video-wrapper" id="videoWrapper">
+                    <!-- YouTube iframe or video element will be inserted here -->
+                    <div id="player"></div>
+                    
+                    <!-- Custom Controls Overlay -->
+                    <div class="video-controls-overlay" id="customControls">
+                        <!-- Progress Bar -->
+                        <div class="progress-container" id="progressContainer">
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress-handle"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Controls Row -->
+                        <div class="controls-row">
+                            <button class="control-btn play-pause" id="playPauseBtn">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            
+                            <div class="volume-container">
+                                <button class="control-btn" id="muteBtn">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+                            </div>
+                            
+                            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                            
+                            <div class="controls-right">
+                                <div class="settings-menu">
+                                    <button class="control-btn" id="settingsBtn">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <div class="settings-dropdown" id="settingsDropdown">
+                                        <div class="settings-item" data-speed="0.5">
+                                            <span>0.5x</span>
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <div class="settings-item" data-speed="0.75">
+                                            <span>0.75x</span>
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <div class="settings-item active" data-speed="1">
+                                            <span>1x (Normal)</span>
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="settings-item" data-speed="1.25">
+                                            <span>1.25x</span>
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <div class="settings-item" data-speed="1.5">
+                                            <span>1.5x</span>
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                        <div class="settings-item" data-speed="2">
+                                            <span>2x</span>
+                                            <i class="fas fa-check" style="display: none;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="control-btn" id="fullscreenBtn">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video Info -->
+                <div class="video-info">
+                    <h1 id="videoTitle">JavaScript asoslari - 1-dars</h1>
+                    <div class="video-meta">
+                        <span><i class="fas fa-eye"></i> 1,234 ko'rish</span>
+                        <span><i class="fas fa-calendar"></i> 2 kun oldin</span>
+                        <span><i class="fas fa-clock"></i> 15 daqiqa</span>
+                    </div>
+                    <p id="videoDescription" style="color: rgb(var(--text-secondary)); margin-bottom: 1rem;">
+                        Bu darsda JavaScript tilining asosiy tushunchalari, o'zgaruvchilar, ma'lumot turlari va operatorlar haqida batafsil ma'lumot beriladi.
+                    </p>
+                    
+                    <div class="video-actions">
+                        <button class="action-btn primary" id="likeBtn">
+                            <i class="far fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="action-btn" id="bookmarkBtn">
+                            <i class="far fa-bookmark"></i>
+                            <span>Saqlash</span>
+                        </button>
+                        <button class="action-btn" id="shareBtn">
+                            <i class="fas fa-share"></i>
+                            <span>Ulashish</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Quiz Section -->
+                    <div class="quiz-section" id="quizSection" style="display: none;">
+                        <h3><i class="fas fa-question-circle"></i> Test mavjud!</h3>
+                        <p>Video darsni tugatganingizdan so'ng, bilimlaringizni tekshirish uchun test topshirishingiz mumkin.</p>
+                        <button class="quiz-btn" onclick="startQuiz()">
+                            <i class="fas fa-play"></i>
+                            Testni boshlash
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="video-sidebar">
+                <!-- Course Progress -->
+                <div class="course-progress">
+                    <h3>Kurs progressi</h3>
+                    <div class="progress-ring">
+                        <svg width="120" height="120">
+                            <circle class="progress-ring-bg" cx="60" cy="60" r="52"></circle>
+                            <circle class="progress-ring-fill" cx="60" cy="60" r="52" 
+                                    stroke-dasharray="326.73" stroke-dashoffset="98.02"></circle>
+                        </svg>
+                        <div class="progress-text">70%</div>
+                    </div>
+                    <p style="text-align: center; font-size: 0.875rem; color: rgb(var(--text-secondary));">
+                        7 ta darsdan 5 tasi tugallandi
+                    </p>
+                </div>
+                
+                <!-- Playlist -->
+                <div class="playlist">
+                    <div class="playlist-header">
+                        <h3>Kurs darslari</h3>
+                        <p>JavaScript asoslari - 10 dars</p>
+                    </div>
+                    <div class="playlist-items" id="playlistItems">
+                        <!-- Playlist items will be loaded dynamically -->
+                        <div class="playlist-item completed" data-lesson-id="1">
+                            <div class="playlist-thumb">
+                                <img src="../images/course1.jpg" alt="Dars 1">
+                                <span class="duration">12:34</span>
+                            </div>
+                            <div class="playlist-info">
+                                <h4>1. Kirish va o'rnatish</h4>
+                                <p>Ko'rildi</p>
+                            </div>
+                            <div class="item-status">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="playlist-item active" data-lesson-id="2">
+                            <div class="playlist-thumb">
+                                <img src="../images/course1.jpg" alt="Dars 2">
+                                <span class="duration">15:20</span>
+                            </div>
+                            <div class="playlist-info">
+                                <h4>2. O'zgaruvchilar</h4>
+                                <p>Hozir ko'rilmoqda</p>
+                            </div>
+                            <div class="item-status">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="playlist-item has-quiz" data-lesson-id="3">
+                            <div class="playlist-thumb">
+                                <img src="../images/course1.jpg" alt="Dars 3">
+                                <span class="duration">18:45</span>
+                            </div>
+                            <div class="playlist-info">
+                                <h4>3. Ma'lumot turlari</h4>
+                                <p>Test mavjud</p>
+                            </div>
+                            <div class="item-status"></div>
+                        </div>
+                        
+                        <div class="playlist-item" data-lesson-id="4">
+                            <div class="playlist-thumb">
+                                <img src="../images/course1.jpg" alt="Dars 4">
+                                <span class="duration">14:30</span>
+                            </div>
+                            <div class="playlist-info">
+                                <h4>4. Operatorlar</h4>
+                                <p>14:30</p>
+                            </div>
+                            <div class="item-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="playlist-item" data-lesson-id="5">
+                            <div class="playlist-thumb">
+                                <img src="../images/course1.jpg" alt="Dars 5">
+                                <span class="duration">20:15</span>
+                            </div>
+                            <div class="playlist-info">
+                                <h4>5. Shartlar</h4>
+                                <p>20:15</p>
+                            </div>
+                            <div class="item-status">
+                                <i class="far fa-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    
+    <script>
+        // Video Player State
+        let player = null;
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 0;
+        let playbackRate = 1;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVideo();
+            setupEventListeners();
+            checkQuizAvailability();
+        });
+        
+        // Load Video (YouTube or direct)
+        function loadVideo() {
+            const videoId = new URLSearchParams(window.location.search).get('v');
+            const videoType = new URLSearchParams(window.location.search).get('type') || 'youtube';
+            
+            if (videoType === 'youtube') {
+                loadYouTubeVideo(videoId || 'dQw4w9WgXcQ');
+            } else {
+                loadDirectVideo(videoId);
+            }
+        }
+        
+        // Load YouTube Video
+        function loadYouTubeVideo(videoId) {
+            const wrapper = document.getElementById('videoWrapper');
+            wrapper.innerHTML = `<iframe id="ytplayer" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=0&rel=0" frameborder="0" allowfullscreen></iframe>`;
+            
+            // YouTube API would be initialized here
+            // For demo, using custom controls overlay
+        }
+        
+        // Load Direct Video
+        function loadDirectVideo(url) {
+            const wrapper = document.getElementById('videoWrapper');
+            wrapper.innerHTML = `<video id="videoPlayer" src="${url}" style="width: 100%; height: 100%;"></video>`;
+            
+            const video = document.getElementById('videoPlayer');
+            video.addEventListener('timeupdate', updateProgress);
+            video.addEventListener('loadedmetadata', () => {
+                duration = video.duration;
+                updateTimeDisplay();
+            });
+        }
+        
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Play/Pause
+            document.getElementById('playPauseBtn').addEventListener('click', togglePlayPause);
+            
+            // Progress Bar
+            document.getElementById('progressContainer').addEventListener('click', seekVideo);
+            
+            // Volume
+            document.getElementById('muteBtn').addEventListener('click', toggleMute);
+            document.getElementById('volumeSlider').addEventListener('input', setVolume);
+            
+            // Fullscreen
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            
+            // Settings (Speed)
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                document.getElementById('settingsDropdown').classList.toggle('active');
+            });
+            
+            document.querySelectorAll('.settings-item').forEach(item => {
+                item.addEventListener('click', () => setPlaybackSpeed(item.dataset.speed));
+            });
+            
+            // Playlist Items
+            document.querySelectorAll('.playlist-item').forEach(item => {
+                item.addEventListener('click', () => loadLesson(item.dataset.lessonId));
+            });
+            
+            // Close settings on outside click
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.settings-menu')) {
+                    document.getElementById('settingsDropdown').classList.remove('active');
+                }
+            });
+        }
+        
+        // Toggle Play/Pause
+        function togglePlayPause() {
+            const video = document.getElementById('videoPlayer');
+            const btn = document.getElementById('playPauseBtn');
+            
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                } else {
+                    video.pause();
+                    btn.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                }
+            }
+        }
+        
+        // Update Progress Bar
+        function updateProgress() {
+            const video = document.getElementById('videoPlayer');
+            if (video) {
+                currentTime = video.currentTime;
+                const progress = (currentTime / video.duration) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                updateTimeDisplay();
+                
+                // Check if video ended for quiz
+                if (currentTime >= video.duration - 5) {
+                    showQuizSection();
+                }
+            }
+        }
+        
+        // Seek Video
+        function seekVideo(e) {
+            const video = document.getElementById('videoPlayer');
+            if (video) {
+                const container = document.getElementById('progressContainer');
+                const rect = container.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                video.currentTime = pos * video.duration;
+            }
+        }
+        
+        // Update Time Display
+        function updateTimeDisplay() {
+            const timeDisplay = document.getElementById('timeDisplay');
+            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        }
+        
+        // Format Time
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Toggle Mute
+        function toggleMute() {
+            const video = document.getElementById('videoPlayer');
+            const btn = document.getElementById('muteBtn');
+            
+            if (video) {
+                video.muted = !video.muted;
+                btn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            }
+        }
+        
+        // Set Volume
+        function setVolume(e) {
+            const video = document.getElementById('videoPlayer');
+            if (video) {
+                video.volume = e.target.value / 100;
+            }
+        }
+        
+        // Toggle Fullscreen
+        function toggleFullscreen() {
+            const wrapper = document.getElementById('videoWrapper');
+            
+            if (!document.fullscreenElement) {
+                wrapper.requestFullscreen().catch(err => {
+                    console.error('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Set Playback Speed
+        function setPlaybackSpeed(speed) {
+            const video = document.getElementById('videoPlayer');
+            if (video) {
+                video.playbackRate = parseFloat(speed);
+                playbackRate = speed;
+                
+                // Update UI
+                document.querySelectorAll('.settings-item').forEach(item => {
+                    item.classList.remove('active');
+                    item.querySelector('i').style.display = 'none';
+                });
+                
+                const activeItem = document.querySelector(`[data-speed="${speed}"]`);
+                activeItem.classList.add('active');
+                activeItem.querySelector('i').style.display = 'inline';
+                
+                document.getElementById('settingsDropdown').classList.remove('active');
+            }
+        }
+        
+        // Load Lesson
+        function loadLesson(lessonId) {
+            // Update active state in playlist
+            document.querySelectorAll('.playlist-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-lesson-id="${lessonId}"]`).classList.add('active');
+            
+            // Reload video
+            // In real app, fetch lesson data from Firestore
+            console.log('Loading lesson:', lessonId);
+        }
+        
+        // Check Quiz Availability
+        function checkQuizAvailability() {
+            // In real app, check if lesson has quiz from Firestore
+            const hasQuiz = true; // Demo
+            if (hasQuiz) {
+                document.getElementById('quizSection').style.display = 'block';
+            }
+        }
+        
+        // Show Quiz Section
+        function showQuizSection() {
+            const quizSection = document.getElementById('quizSection');
+            quizSection.style.display = 'block';
+            quizSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Start Quiz
+        function startQuiz() {
+            // Navigate to quiz page or show quiz modal
+            window.location.href = 'quiz.html?lessonId=2';
+        }
+        
+        // Logout
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        }
+        
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                togglePlayPause();
+            } else if (e.code === 'ArrowRight') {
+                const video = document.getElementById('videoPlayer');
+                if (video) video.currentTime += 5;
+            } else if (e.code === 'ArrowLeft') {
+                const video = document.getElementById('videoPlayer');
+                if (video) video.currentTime -= 5;
+            } else if (e.code === 'KeyF') {
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>

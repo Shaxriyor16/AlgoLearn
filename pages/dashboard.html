@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .dashboard {
+            padding-top: calc(var(--header-height) + 2rem);
+            padding-bottom: 4rem;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-header p {
+            color: rgb(var(--text-secondary));
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .sidebar {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--header-height) + 2rem);
+        }
+        
+        .user-profile {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgb(var(--border-light));
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid rgb(var(--primary-200));
+        }
+        
+        .user-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: rgb(var(--text-secondary));
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+        
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background-color: rgb(var(--primary-50));
+            color: rgb(var(--primary-600));
+        }
+        
+        [data-theme="dark"] .sidebar-link:hover,
+        [data-theme="dark"] .sidebar-link.active {
+            background-color: rgba(var(--primary-500), 0.1);
+        }
+        
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            min-height: 600px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgb(var(--border-light));
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .stat-icon.blue {
+            background-color: rgb(var(--primary-100));
+            color: rgb(var(--primary-600));
+        }
+        
+        .stat-icon.green {
+            background-color: rgba(var(--success-500), 0.1);
+            color: rgb(var(--success-500));
+        }
+        
+        .stat-icon.orange {
+            background-color: rgba(var(--warning-500), 0.1);
+            color: rgb(var(--warning-500));
+        }
+        
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-info p {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+        }
+        
+        .section-card {
+            background-color: rgb(var(--bg-primary));
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: rgb(var(--border-dark));
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: rgb(var(--text-secondary));
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: rgb(var(--border-light));
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgb(var(--primary-500)), rgb(var(--primary-600)));
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+        }
+        
+        .course-progress-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: background-color var(--transition-fast);
+        }
+        
+        .course-progress-item:hover {
+            background-color: rgb(var(--bg-secondary));
+        }
+        
+        .course-progress-thumb {
+            width: 80px;
+            height: 60px;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+        
+        .course-progress-info {
+            flex: 1;
+        }
+        
+        .course-progress-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .course-progress-info p {
+            font-size: 0.875rem;
+            color: rgb(var(--text-secondary));
+            margin-bottom: 0.5rem;
+        }
+        
+        .course-progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: rgb(var(--text-tertiary));
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses">Kurslar</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-outline" onclick="AuthService.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Chiqish
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/80?text=U" alt="User" class="user-avatar" id="userAvatar">
+                        <h3 class="user-name" id="userName">Foydalanuvchi</h3>
+                        <p class="user-email" id="userEmail">user@example.com</p>
+                    </div>
+                    
+                    <nav class="sidebar-nav">
+                        <a href="dashboard.html" class="sidebar-link active">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
+                        <a href="my-courses.html" class="sidebar-link">
+                            <i class="fas fa-book"></i>
+                            Mening kurslarim
+                        </a>
+                        <a href="bookmarks.html" class="sidebar-link">
+                            <i class="fas fa-bookmark"></i>
+                            Sevimlilar
+                        </a>
+                        <a href="profile.html" class="sidebar-link">
+                            <i class="fas fa-user"></i>
+                            Profil
+                        </a>
+                        <a href="#" class="sidebar-link" onclick="AuthService.logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Chiqish
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="main-content">
+                    <div class="dashboard-header">
+                        <h1>Dashboard</h1>
+                        <p>O'rganish jarayoningizni kuzatib boring</p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="enrolledCount">0</h3>
+                                <p>Yozilgan kurslar</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="completedCount">0</h3>
+                                <p>Tamomlangan</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="hoursSpent">0</h3>
+                                <p>O'qish soati</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress -->
+                    <div class="section-card">
+                        <h2><i class="fas fa-spinner"></i> Davom etayotgan kurslar</h2>
+                        <div id="inProgressList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Recommended -->
+                    <div class="section-card">
+                        <h2><i class="fas fa-star"></i> Tavsiya etilgan kurslar</h2>
+                        <div id="recommendedList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Firebase SDK v10.8.0 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Check auth state
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user data
+            const userData = await AuthService.getUserData(user.uid);
+            if (userData) {
+                document.getElementById('userName').textContent = userData.name || 'Foydalanuvchi';
+                document.getElementById('userEmail').textContent = userData.email;
+                if (userData.avatarUrl) {
+                    document.getElementById('userAvatar').src = userData.avatarUrl;
+                }
+            }
+            
+            // Load stats
+            loadDashboardStats(user.uid);
+        });
+        
+        // Load dashboard stats
+        async function loadDashboardStats(userId) {
+            try {
+                showLoading();
+                
+                // Get enrollments
+                const enrollmentsSnapshot = await db.collection(COLLECTIONS.ENROLLMENTS)
+                    .where('userId', '==', userId)
+                    .get();
+                
+                const enrolledCount = enrollmentsSnapshot.size;
+                document.getElementById('enrolledCount').textContent = enrolledCount;
+                
+                // Get progress
+                const progressSnapshot = await db.collection(COLLECTIONS.PROGRESS)
+                    .where('userId', '==', userId)
+                    .get();
+                
+                let completedCount = 0;
+                let hoursSpent = 0;
+                const inProgress = [];
+                
+                progressSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.percentage === 100) {
+                        completedCount++;
+                    } else if (data.percentage > 0) {
+                        inProgress.push(data);
+                    }
+                    hoursSpent += (data.hoursSpent || 0);
+                });
+                
+                document.getElementById('completedCount').textContent = completedCount;
+                document.getElementById('hoursSpent').textContent = Math.round(hoursSpent);
+                
+                // Render in progress
+                renderInProgress(inProgress);
+                
+                // Render recommended
+                await renderRecommended(userId);
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Load stats error:', error);
+                hideLoading();
+            }
+        }
+        
+        // Render in progress courses
+        async function renderInProgress(progressList) {
+            const container = document.getElementById('inProgressList');
+            
+            if (progressList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>Hozircha kurslarga yozilmagansiz</h3>
+                        <p>Yangi kursni boshlash uchun kurslar katalogiga qarang</p>
+                        <a href="../index.html#courses" class="btn btn-primary">
+                            Kurslarni ko'rish
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            for (const progress of progressList) {
+                const course = await CoursesService.getCourse(progress.courseId);
+                if (course) {
+                    html += `
+                        <div class="course-progress-item">
+                            <img src="${course.thumbnail || 'https://via.placeholder.com/80x60'}" 
+                                 alt="${course.title}" class="course-progress-thumb">
+                            <div class="course-progress-info">
+                                <h4>${course.title}</h4>
+                                <p>${course.category || 'Dasturlash'}</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress.percentage || 0}%"></div>
+                                </div>
+                                <div class="course-progress-meta">
+                                    <span>${Math.round(progress.percentage || 0)}% tugallandi</span>
+                                    <span>${progress.completedLessons?.length || 0}/${course.lessonCount || 0} dars</span>
+                                </div>
+                            </div>
+                            <a href="course.html?id=${course.id}&lesson=${progress.currentLessonId || ''}" 
+                               class="btn btn-primary btn-sm">
+                                Davom etish
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Render recommended courses
+        async function renderRecommended(userId) {
+            const container = document.getElementById('recommendedList');
+            
+            try {
+                const courses = await CoursesService.getCourses();
+                
+                // Filter out enrolled courses
+                const userData = await AuthService.getUserData(userId);
+                const enrolled = userData?.enrolledCourses || [];
+                
+                const recommended = courses
+                    .filter(c => !enrolled.includes(c.id))
+                    .slice(0, 3);
+                
+                if (recommended.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Barcha kurslarni o'rgandingiz!</h3>
+                            <p>Yangi kurslar tez orada qo'shiladi</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                CoursesService.renderCourses(recommended);
+                
+            } catch (error) {
+                console.error('Render recommended error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>AlgoLearn Admin</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#courses" class="nav-item" data-page="courses">
+                    <i class="fas fa-book"></i>
+                    <span>Kurslar</span>
+                </a>
+                <a href="#lessons" class="nav-item" data-page="lessons">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Darslar</span>
+                </a>
+                <a href="#videos" class="nav-item" data-page="videos">
+                    <i class="fas fa-video"></i>
+                    <span>Videolar</span>
+                </a>
+                <a href="#quizzes" class="nav-item" data-page="quizzes">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Testlar</span>
+                </a>
+                <a href="#users" class="nav-item" data-page="users">
+                    <i class="fas fa-users"></i>
+                    <span>Foydalanuvchilar</span>
+                </a>
+                <a href="#categories" class="nav-item" data-page="categories">
+                    <i class="fas fa-tags"></i>
+                    <span>Kategoriyalar</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <img src="https://via.placeholder.com/40?text=A" alt="Admin" id="adminAvatar">
+                    <div>
+                        <span class="admin-name" id="adminName">Admin</span>
+                        <span class="admin-role">Super Admin</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Top Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="header-actions">
+                        <button class="action-btn" id="addNewBtn">
+                            <i class="fas fa-plus"></i>
+                            <span>Yangi qo'shish</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="dashboard-page">
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalUsers">0</span>
+                            <span class="stat-label">Foydalanuvchilar</span>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalCourses">0</span>
+                            <span class="stat-label">Kurslar</span>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalLessons">0</span>
+                            <span class="stat-label">Darslar</span>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalViews">0</span>
+                            <span class="stat-label">Ko'rishlar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> So'nggi faollik</h3>
+                            <select class="select-sm">
+                                <option>7 kun</option>
+                                <option>30 kun</option>
+                                <option>90 kun</option>
+                            </select>
+                        </div>
+                        <div class="chart-container" id="activityChart">
+                            <!-- Chart will be rendered here -->
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-bar"></i>
+                                <p>Faollik grafigi</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-plus"></i> Yangi foydalanuvchilar</h3>
+                            <a href="#users" class="view-all">Barchasini ko'rish</a>
+                        </div>
+                        <div class="users-list" id="recentUsers">
+                            <!-- Users will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card full-width">
+                    <div class="card-header">
+                        <h3><i class="fas fa-star"></i> Mashhur kurslar</h3>
+                        <a href="#courses" class="view-all">Barcha kurslar</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Kurs</th>
+                                    <th>Kategoriya</th>
+                                    <th>O'quvchilar</th>
+                                    <th>Reyting</th>
+                                    <th>Holat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="popularCourses">
+                                <!-- Courses will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Page -->
+            <div class="page-content" id="courses-page">
+                <div class="content-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Kurslarni qidirish..." id="courseSearch">
+                    </div>
+                    <div class="filters">
+                        <select id="categoryFilter">
+                            <option value="">Barcha kategoriyalar</option>
+                        </select>
+                        <select id="statusFilter">
+                            <option value="">Barcha holatlar</option>
+                            <option value="active">Faol</option>
+                            <option value="draft">Qoralama</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="data-grid" id="coursesGrid">
+                    <!-- Courses cards will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Other pages will be added dynamically -->
+            <div class="page-content" id="lessons-page">
+                <div class="content-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Darslarni qidirish..." id="lessonSearch">
+                    </div>
+                    <div class="filters">
+                        <select id="lessonCourseFilter">
+                            <option value="">Barcha kurslar</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="showAddLessonModal()">
+                            <i class="fas fa-plus"></i>
+                            Dars qo'shish
+                        </button>
+                    </div>
+                </div>
+                <div class="data-grid" id="lessonsGrid">
+                    <!-- Lessons will be loaded here -->
+                </div>
+            </div>
+
+            <div class="page-content" id="videos-page">
+                <div class="content-header">
+                    <h2>Video yuklash</h2>
+                </div>
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Videolarni shu yerga olib keling</p>
+                    <span>yoki</span>
+                    <button class="btn btn-primary">Fayl tanlash</button>
+                    <input type="file" id="videoInput" accept="video/*" multiple hidden>
+                </div>
+                <div class="upload-list" id="uploadList"></div>
+            </div>
+
+            <div class="page-content" id="quizzes-page">
+                <div class="content-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Testlarni qidirish..." id="quizSearch">
+                    </div>
+                    <div class="filters">
+                        <select id="quizCourseFilter">
+                            <option value="">Barcha kurslar</option>
+                        </select>
+                        <select id="quizLessonFilter">
+                            <option value="">Barcha darslar</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAddQuizModal()">
+                        <i class="fas fa-plus"></i>
+                        Test qo'shish
+                    </button>
+                </div>
+                <div class="data-grid" id="quizzesGrid">
+                    <!-- Quizzes will be loaded here -->
+                </div>
+            </div>
+
+            <div class="page-content" id="users-page">
+                <div class="content-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Foydalanuvchilarni qidirish..." id="userSearch">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Foydalanuvchi</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Ro'yxatdan o'tgan</th>
+                                <th>Holat</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="page-content" id="categories-page">
+                <div class="content-header">
+                    <button class="btn btn-primary" onclick="showAddCategoryModal()">
+                        <i class="fas fa-plus"></i>
+                        Kategoriya qo'shish
+                    </button>
+                </div>
+                <div class="categories-grid" id="categoriesGrid">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Course Modal -->
+    <div class="modal" id="courseModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="courseModalTitle">Yangi kurs</h2>
+                <button class="close-btn" onclick="closeModal('courseModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="courseForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kurs nomi *</label>
+                        <input type="text" name="title" required placeholder="Masalan: JavaScript asoslari">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategoriya *</label>
+                        <select name="category" required>
+                            <option value="">Tanlang</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tavsif *</label>
+                    <textarea name="description" rows="3" required placeholder="Kurs haqida qisqacha ma'lumot..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Thumbnail</label>
+                        <div class="file-upload">
+                            <input type="file" name="thumbnail" accept="image/*" id="thumbnailInput">
+                            <label for="thumbnailInput" class="file-upload-label">
+                                <i class="fas fa-image"></i>
+                                <span>Rasm tanlash</span>
+                            </label>
+                            <div class="file-preview" id="thumbnailPreview"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Holat</label>
+                        <div class="toggle-group">
+                            <label class="toggle">
+                                <input type="checkbox" name="isFree" checked>
+                                <span>Bepul</span>
+                            </label>
+                            <label class="toggle">
+                                <input type="checkbox" name="isPublished">
+                                <span>Published</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text" name="tags" placeholder="javascript, web, programming (vergul bilan ajrating)">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('courseModal')">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Category Modal with Icon Selection -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Yangi kategoriya</h2>
+                <button class="close-btn" onclick="closeModal('categoryModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="categoryForm" class="modal-form">
+                <div class="form-group">
+                    <label>Kategoriya nomi *</label>
+                    <input type="text" name="name" required placeholder="Masalan: JavaScript">
+                </div>
+                <div class="form-group">
+                    <label>Tavsif</label>
+                    <textarea name="description" rows="2" placeholder="Kategoriya tavsifi..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Ikon tanlash *</label>
+                    <div class="icon-selector">
+                        <div class="icon-grid">
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="js" checked>
+                                <div class="icon-box"><i class="fab fa-js"></i></div>
+                                <span>JavaScript</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="python">
+                                <div class="icon-box"><i class="fab fa-python"></i></div>
+                                <span>Python</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="react">
+                                <div class="icon-box"><i class="fab fa-react"></i></div>
+                                <span>React</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="flutter">
+                                <div class="icon-box"><i class="fas fa-mobile-alt"></i></div>
+                                <span>Flutter</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="dart">
+                                <div class="icon-box"><i class="fas fa-code"></i></div>
+                                <span>Dart</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="golang">
+                                <div class="icon-box"><i class="fab fa-golang"></i></div>
+                                <span>Go</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="php">
+                                <div class="icon-box"><i class="fab fa-php"></i></div>
+                                <span>PHP</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="java">
+                                <div class="icon-box"><i class="fab fa-java"></i></div>
+                                <span>Java</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="cplusplus">
+                                <div class="icon-box"><i class="fas fa-microchip"></i></div>
+                                <span>C++</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="angular">
+                                <div class="icon-box"><i class="fab fa-angular"></i></div>
+                                <span>Angular</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="vue">
+                                <div class="icon-box"><i class="fab fa-vuejs"></i></div>
+                                <span>Vue</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="node">
+                                <div class="icon-box"><i class="fab fa-node-js"></i></div>
+                                <span>Node.js</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="database">
+                                <div class="icon-box"><i class="fas fa-database"></i></div>
+                                <span>Database</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="algorithm">
+                                <div class="icon-box"><i class="fas fa-project-diagram"></i></div>
+                                <span>Algorithm</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="code">
+                                <div class="icon-box"><i class="fas fa-code"></i></div>
+                                <span>Code</span>
+                            </label>
+                            <label class="icon-option">
+                                <input type="radio" name="icon" value="laptop">
+                                <div class="icon-box"><i class="fas fa-laptop-code"></i></div>
+                                <span>Web</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Rang</label>
+                    <input type="color" name="color" value="#6366f1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('categoryModal')">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Lesson Modal -->
+    <div class="modal" id="lessonModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="lessonModalTitle">Yangi dars</h2>
+                <button class="close-btn" onclick="closeModal('lessonModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="lessonForm" class="modal-form">
+                <input type="hidden" name="lessonId">
+                <input type="hidden" name="courseId">
+                
+                <div class="form-group">
+                    <label>Kurs tanlang *</label>
+                    <select name="courseSelect" id="lessonCourseSelect" required>
+                        <option value="">Kursni tanlang...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dars nomi *</label>
+                    <input type="text" name="title" placeholder="Masalan: JavaScript kirish" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tavsif</label>
+                    <textarea name="description" rows="2" placeholder="Dars haqida qisqacha ma'lumot"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tartib raqami</label>
+                        <input type="number" name="orderIndex" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Davomiyligi (daqiqa)</label>
+                        <input type="number" name="duration" value="15" min="1">
+                    </div>
+                </div>
+                
+                <!-- Video Settings -->
+                <div class="section-divider">
+                    <h3><i class="fas fa-video"></i> Video sozlamalari</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label>Video manbasi *</label>
+                    <select name="videoType" id="videoType" required onchange="toggleVideoInput()">
+                        <option value="storage">Firebase Storage</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="url">URL havola</option>
+                    </select>
+                </div>
+                
+                <!-- Firebase Storage Upload -->
+                <div id="storageUpload" class="upload-section">
+                    <div class="upload-zone" id="videoUploadZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Video faylni bu yerga olib keling</p>
+                        <span>yoki</span>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('lessonVideoInput').click()">
+                            Fayl tanlash
+                        </button>
+                        <input type="file" id="lessonVideoInput" accept="video/*" hidden>
+                    </div>
+                    <div class="upload-progress" id="lessonUploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="lessonProgressFill"></div>
+                        </div>
+                        <span class="progress-text" id="lessonProgressText">0%</span>
+                    </div>
+                </div>
+                
+                <!-- YouTube Input -->
+                <div id="youtubeInput" class="form-group" style="display: none;">
+                    <label>YouTube Video ID yoki URL</label>
+                    <input type="text" name="youtubeUrl" placeholder="https://youtube.com/watch?v=... yoki dQw4w9WgXcQ">
+                    <small>YouTube video havolasini kiriting</small>
+                </div>
+                
+                <!-- URL Input -->
+                <div id="urlInput" class="form-group" style="display: none;">
+                    <label>Video URL</label>
+                    <input type="url" name="videoUrl" placeholder="https://example.com/video.mp4">
+                    <small>To'g'ridan-to'g'ri video fayl havolasi</small>
+                </div>
+                
+                <!-- Quiz Settings -->
+                <div class="section-divider">
+                    <h3><i class="fas fa-question-circle"></i> Test sozlamalari</h3>
+                </div>
+                
+                <div class="form-group">
+                    <label class="toggle">
+                        <input type="checkbox" name="hasQuiz" id="hasQuizCheckbox" onchange="toggleQuizSettings()">
+                        <span>Bu darsga test qo'shish</span>
+                    </label>
+                </div>
+                
+                <div id="quizSettings" style="display: none; opacity: 0.6; pointer-events: none;">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Dars saqlangach, test qo'shish uchun "Testlar" bo'limiga o'ting.</p>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('lessonModal')">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Quiz Modal -->
+    <div class="modal" id="quizModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="quizModalTitle">Yangi test</h2>
+                <button class="close-btn" onclick="closeModal('quizModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="quizForm" class="modal-form">
+                <input type="hidden" name="quizId">
+                <input type="hidden" name="courseId">
+                <input type="hidden" name="lessonId">
+                
+                <div class="form-group">
+                    <label>Dars tanlang *</label>
+                    <select name="lessonSelect" id="lessonSelect" required>
+                        <option value="">Darsni tanlang...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Test nomi *</label>
+                    <input type="text" name="title" placeholder="Masalan: JavaScript asoslari testi" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tavsif</label>
+                    <textarea name="description" rows="2" placeholder="Test haqida qisqacha ma'lumot"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vaqt chegarasi (daqiqa)</label>
+                        <input type="number" name="timeLimit" value="10" min="0">
+                        <small>0 = cheksiz</small>
+                    </div>
+                    <div class="form-group">
+                        <label>O'tish bali (%)</label>
+                        <input type="number" name="passingScore" value="70" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Urinishlar soni</label>
+                        <input type="number" name="maxAttempts" value="3" min="1">
+                    </div>
+                </div>
+                
+                <div class="questions-section">
+                    <h3>Savollar <button type="button" class="btn btn-sm btn-primary" onclick="addQuestionField()">+ Savol qo'shish</button></h3>
+                    <div id="questionsContainer">
+                        <!-- Question fields will be added here -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="toggle">
+                        <input type="checkbox" name="isActive" checked>
+                        <span>Test faol</span>
+                    </label>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('quizModal')">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Saqlash
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Firebase SDK v10.8.0 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/quiz-service.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

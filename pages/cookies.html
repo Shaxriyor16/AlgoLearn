@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie siyosati - AlgoLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, rgb(var(--primary-600)) 0%, rgb(var(--primary-800)) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        
+        .content-section {
+            padding: 3rem 0;
+        }
+        
+        .legal-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgb(var(--bg-primary));
+            padding: 2.5rem;
+            border-radius: 1rem;
+            border: 1px solid rgb(var(--border-light));
+        }
+        
+        .legal-container h2 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .legal-container h2:first-child {
+            margin-top: 0;
+        }
+        
+        .legal-container p {
+            color: rgb(var(--text-secondary));
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .cookie-types {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .cookie-type {
+            background: rgb(var(--bg-secondary));
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+        }
+        
+        .cookie-type.essential {
+            border-color: rgb(var(--success-500));
+        }
+        
+        .cookie-type.functional {
+            border-color: rgb(var(--primary-500));
+        }
+        
+        .cookie-type.analytics {
+            border-color: rgb(var(--warning-500));
+        }
+        
+        .cookie-type h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: rgb(var(--text-primary));
+        }
+        
+        .cookie-type p {
+            margin-bottom: 0;
+            font-size: 0.9375rem;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: rgb(var(--text-tertiary));
+            font-size: 0.875rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgb(var(--border-light));
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>AlgoLearn</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses">Kurslar</a>
+                <a href="../index.html#about">Biz haqimizda</a>
+            </div>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline">Kirish</a>
+                <a href="register.html" class="btn btn-primary">Ro'yxatdan o'tish</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-cookie-bite"></i> Cookie siyosati</h1>
+            <p>Cookie fayllaridan qanday foydalanishimiz</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <section class="content-section">
+        <div class="container">
+            <div class="legal-container">
+                <h2>Cookie nima?</h2>
+                <p>Cookie - bu sayt tomonidan brauzeringizga saqlanadigan kichik matn fayllari. Ular saytni ishlatishni osonlashtiradi va tajribangizni shaxsiylashtiradi.</p>
+                
+                <h2>Cookie turlari</h2>
+                <div class="cookie-types">
+                    <div class="cookie-type essential">
+                        <h4><i class="fas fa-check-circle" style="color: rgb(var(--success-500));"></i> Zaruriy cookie'lar</h4>
+                        <p>Saytning asosiy funksiyalari uchun zarur. Bu cookie'lar o'chirilmasa sayt to'g'ri ishlamaydi.</p>
+                    </div>
+                    
+                    <div class="cookie-type functional">
+                        <h4><i class="fas fa-cog" style="color: rgb(var(--primary-500));"></i> Funksional cookie'lar</h4>
+                        <p>Sizning sozlamalaringizni (til, mavzu) saqlash uchun ishlatiladi.</p>
+                    </div>
+                    
+                    <div class="cookie-type analytics">
+                        <h4><i class="fas fa-chart-bar" style="color: rgb(var(--warning-500));"></i> Analitik cookie'lar</h4>
+                        <p>Saytdan qanday foydalanishingizni tushunishimizga yordam beradi.</p>
+                    </div>
+                </div>
+                
+                <h2>Cookie'lar nima uchun ishlatiladi?</h2>
+                <ul style="color: rgb(var(--text-secondary)); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1rem;">
+                    <li>Saytga kirishda avtomatik kirish</li>
+                    <li>Sozlamalaringizni saqlash</li>
+                    <li>O'rganish jarayonini kuzatish</li>
+                    <li>Saytni yaxshilash uchun statistika yig'ish</li>
+                </ul>
+                
+                <h2>Cookie'larni boshqarish</h2>
+                <p>Brauzeringiz sozlamalaridan cookie'larni o'chirishingiz yoki bloklashingiz mumkin. Biroq, buni qilsangiz saytning ba'zi funksiyalari ishlamasligi mumkin.</p>
+                
+                <h2>Cookie'larni o'chirish</h2>
+                <p>Brauzeringizning "Tarixni tozalash" yoki "Cookie'larni o'chirish" funksiyasidan foydalaning. Aniq ko'rsatmalar uchun brauzeringiz yordam sahifasini ko'ring.</p>
+                
+                <h2>O'zgarishlar</h2>
+                <p>Ushbu siyosat vaqti-vaqti bilan yangilanishi mumkin. O'zgarishlar saytda e'lon qilinadi.</p>
+                
+                <div class="last-updated">
+                    <i class="fas fa-calendar"></i> So'nggi yangilanish: 2026-yil 1-yanvar
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 AlgoLearn. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
