@@ -7,9 +7,7 @@ const CoursesService = {
     subscribeToCourses(callback) {
         console.log('[REAL-TIME] Subscribing to courses...');
 
-        // Simple query without orderBy to avoid index issues
         const unsubscribe = db.collection(COLLECTIONS.COURSES)
-            .where('isFree', '==', true)
             .onSnapshot((snapshot) => {
                 let courses = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -17,7 +15,6 @@ const CoursesService = {
                     createdAt: doc.data().createdAt?.toDate()
                 }));
 
-                // Sort client-side
                 courses.sort((a, b) => {
                     const dateA = a.createdAt ? a.createdAt.getTime() : 0;
                     const dateB = b.createdAt ? b.createdAt.getTime() : 0;
@@ -37,10 +34,7 @@ const CoursesService = {
             }, (error) => {
                 console.error('[REAL-TIME] Subscription error:', error);
 
-                if (error.code === 'failed-precondition') {
-                    console.error('Firestore index required:', error.message);
-                    showToast('Ma\'lumotlar bazasi sozlanmoqda', 'warning');
-                } else if (error.code === 'permission-denied') {
+                if (error.code === 'permission-denied') {
                     console.error('Firestore permission denied:', error.message);
                     showToast('Ma\'lumotlarga ruxsat yo\'q', 'error');
                 }
@@ -94,10 +88,8 @@ const CoursesService = {
         try {
             showLoading();
 
-            // Simple query without orderBy - index not required
-            const snapshot = await db.collection(COLLECTIONS.COURSES)
-                .where('isFree', '==', true)
-                .get();
+            // Get all courses - no filter needed
+            const snapshot = await db.collection(COLLECTIONS.COURSES).get();
 
             let courses = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -105,7 +97,7 @@ const CoursesService = {
                 createdAt: doc.data().createdAt?.toDate()
             }));
 
-            // Sort client-side
+            // Sort client-side by createdAt
             courses.sort((a, b) => {
                 const dateA = a.createdAt ? a.createdAt.getTime() : 0;
                 const dateB = b.createdAt ? b.createdAt.getTime() : 0;
@@ -113,14 +105,17 @@ const CoursesService = {
             });
 
             this.coursesCache = courses;
+            console.log(`[Courses] Loaded ${courses.length} courses`);
             hideLoading();
             return courses;
         } catch (error) {
             hideLoading();
             console.error('Get courses error:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
 
             if (error.code === 'permission-denied') {
-                console.error('Firestore permission denied:', error.message);
+                console.error('Firestore permission denied - check rules in Firebase Console');
                 showToast('Ma\'lumotlarga ruxsat yo\'q. Iltimos, keyinroq urinib ko\'ring', 'error');
             } else {
                 showToast('Kurslarni yuklashda xatolik yuz berdi', 'error');
