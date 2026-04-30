@@ -1,85 +1,70 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Spark (bepul) plan uchun - get() yo'q, faqat custom claims
+    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // Admin - Firebase Auth custom claims orqali
+
     function isAdmin() {
       return isAuthenticated() && request.auth.token.admin == true;
     }
-    
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Users collection
+    // Users - only own data
     match /users/{userId} {
-      // Any authenticated user can read/create/update their OWN document
-      allow read, create, update: if isAuthenticated() && request.auth.uid == userId;
-      // Admin can do anything (requires custom claim)
-      allow read, update, delete: if isAdmin();
+      allow read, write: if isOwner(userId);
+      allow read, write: if isAdmin();
     }
-    
-    // Courses collection
+
+    // Courses - PUBLIC READ for everyone
     match /courses/{courseId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
-      
-      // Lessons subcollection
+      allow write: if isAdmin();
+
+      // Lessons subcollection - PUBLIC READ
       match /lessons/{lessonId} {
         allow read: if true;
-        allow create, update, delete: if isAdmin();
+        allow write: if isAdmin();
       }
     }
-    
-    // Categories collection
+
+    // Categories - PUBLIC READ
     match /categories/{categoryId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
-    
-    // Quizzes collection
+
+    // Quizzes - PUBLIC READ
     match /quizzes/{quizId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
-    
-    // Videos collection
-    match /videos/{videoId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-    
-    // Enrollments
+
+    // Enrollments - authenticated users only
     match /enrollments/{enrollmentId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow read, create: if isAuthenticated();
       allow update, delete: if isAdmin();
     }
-    
-    // Progress
+
+    // Progress - authenticated users only
     match /progress/{progressId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow read, create, update: if isAuthenticated();
       allow delete: if isAdmin();
     }
-    
-    // Quiz results
+
+    // Quiz results - authenticated users only
     match /quizResults/{resultId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow read, create: if isAuthenticated();
       allow update, delete: if isAdmin();
     }
-    
-    // Bookmarks
-    match /bookmarks/{bookmarkId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated();
+
+    // Default DENY for everything else
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

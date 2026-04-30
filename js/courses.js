@@ -87,16 +87,37 @@ const CoursesService = {
         try {
             showLoading();
 
-            const snapshot = await db.collection(COLLECTIONS.COURSES)
-                .where('isFree', '==', true)
-                .orderBy('createdAt', 'desc')
-                .get();
+            // Try complex query with filter and order
+            let snapshot;
+            try {
+                snapshot = await db.collection(COLLECTIONS.COURSES)
+                    .where('isFree', '==', true)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+            } catch (queryError) {
+                // If index or permission error, try simple query without orderBy
+                if (queryError.code === 'failed-precondition' || queryError.code === 'permission-denied') {
+                    console.warn('[Courses] Complex query failed, trying simple query...');
+                    snapshot = await db.collection(COLLECTIONS.COURSES)
+                        .where('isFree', '==', true)
+                        .get();
+                } else {
+                    throw queryError;
+                }
+            }
 
-            const courses = snapshot.docs.map(doc => ({
+            let courses = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
                 createdAt: doc.data().createdAt?.toDate()
             }));
+
+            // Sort manually if we couldn't use orderBy
+            courses.sort((a, b) => {
+                const dateA = a.createdAt ? a.createdAt.getTime() : 0;
+                const dateB = b.createdAt ? b.createdAt.getTime() : 0;
+                return dateB - dateA;
+            });
 
             this.coursesCache = courses;
             hideLoading();
@@ -107,11 +128,11 @@ const CoursesService = {
 
             // Check for specific Firebase errors
             if (error.code === 'failed-precondition') {
-                console.error('Firestore index required. Create index at:', error.message);
-                showToast('Ma\'lumotlar bazasi sozlanmoqda. Iltimos, keyinroq urinib ko\'ring', 'warning');
+                console.error('Firestore index required:', error.message);
+                showToast('Ma\'lumotlar bazasi sozlanmoqda', 'warning');
             } else if (error.code === 'permission-denied') {
-                console.error('Firestore permission denied');
-                showToast('Ma\'lumotlarga ruxsat yo\'q', 'error');
+                console.error('Firestore permission denied - deploy rules:', error.message);
+                showToast('Ma\'lumotlarga ruxsat yo\'q. Iltimos, keyinroq urinib ko\'ring', 'error');
             } else {
                 showToast('Kurslarni yuklashda xatolik yuz berdi', 'error');
             }
