@@ -341,11 +341,22 @@ const AuthService = {
             'auth/email-already-in-use': 'Bu email allaqachon ro\'yxatdan o\'tgan',
             'auth/weak-password': 'Parol juda oson (kamida 6 ta belgi)',
             'auth/invalid-credential': 'Noto\'g\'ri login yoki parol',
-            'auth/popup-closed-by-user': 'Google oynasi yopildi',
-            'auth/cancelled-popup-request': 'So\'rov bekor qilindi'
+            'auth/popup-closed-by-user': 'Kirish oynasi yopildi',
+            'auth/cancelled-popup-request': 'So\'rov bekor qilindi',
+            'auth/operation-not-allowed': 'Bu orqali kirish vaqtincha o\'chirilgan. Iltimos, boshqa usuldan foydalaning',
+            'auth/account-exists-with-different-credential': 'Bu email bilan boshqa usulda ro\'yxatdan o\'tilgan'
         };
-        
-        return errorMessages[error.code] || 'Xatolik yuz berdi: ' + error.message;
+
+        // Check if we have a user-friendly message for this error code
+        if (errorMessages[error.code]) {
+            return errorMessages[error.code];
+        }
+
+        // Log the actual error to console for debugging, but don't show to user
+        console.error('Firebase auth error:', error.code, error.message);
+
+        // Return generic user-friendly message for unknown errors
+        return 'Kirishda xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.';
     }
 };
 

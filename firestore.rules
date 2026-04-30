@@ -17,10 +17,10 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      allow delete: if isAdmin();
+      // Any authenticated user can read/create/update their OWN document
+      allow read, create, update: if isAuthenticated() && request.auth.uid == userId;
+      // Admin can do anything (requires custom claim)
+      allow read, update, delete: if isAdmin();
     }
     
     // Courses collection
