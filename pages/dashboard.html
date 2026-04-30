@@ -307,10 +307,6 @@
                             <i class="fas fa-th-large"></i>
                             Dashboard
                         </a>
-                        <a href="my-courses.html" class="sidebar-link">
-                            <i class="fas fa-book"></i>
-                            Mening kurslarim
-                        </a>
                         <a href="bookmarks.html" class="sidebar-link">
                             <i class="fas fa-bookmark"></i>
                             Sevimlilar
@@ -413,14 +409,17 @@
                 return;
             }
             
-            // Load user data
+            // Update sidebar with auth user data (Google/Apple avatar priority)
+            document.getElementById('userName').textContent = user.displayName || 'Foydalanuvchi';
+            document.getElementById('userEmail').textContent = user.email;
+            if (user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            // Load additional user data
             const userData = await AuthService.getUserData(user.uid);
-            if (userData) {
-                document.getElementById('userName').textContent = userData.name || 'Foydalanuvchi';
-                document.getElementById('userEmail').textContent = userData.email;
-                if (userData.avatarUrl) {
-                    document.getElementById('userAvatar').src = userData.avatarUrl;
-                }
+            if (userData && userData.avatarUrl && !user.photoURL) {
+                document.getElementById('userAvatar').src = userData.avatarUrl;
             }
             
             // Load stats

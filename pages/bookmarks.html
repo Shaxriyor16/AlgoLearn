@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sevimlilar - AlgoLearn</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="shortcut icon" href="../assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .dashboard { padding-top: calc(var(--header-height) + 2rem); padding-bottom: 4rem; }
+        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .sidebar { background: rgb(var(--bg-primary)); border-radius: 1rem; border: 1px solid rgb(var(--border-light)); padding: 1.5rem; height: fit-content; position: sticky; top: calc(var(--header-height) + 2rem); }
+        .user-profile { text-align: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgb(var(--border-light)); margin-bottom: 1.5rem; }
+        .user-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid rgb(var(--primary-200)); }
+        .user-name { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .user-email { font-size: 0.875rem; color: rgb(var(--text-secondary)); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+        .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.5rem; color: rgb(var(--text-secondary)); font-weight: 500; transition: all var(--transition-fast); }
+        .sidebar-link:hover, .sidebar-link.active { background: rgb(var(--primary-50)); color: rgb(var(--primary-600)); }
+        [data-theme="dark"] .sidebar-link:hover, [data-theme="dark"] .sidebar-link.active { background: rgba(var(--primary-500), 0.1); }
+        .sidebar-link i { width: 20px; text-align: center; }
+        .main-content { min-height: 600px; }
+        .section-card { background: rgb(var(--bg-primary)); border-radius: 1rem; border: 1px solid rgb(var(--border-light)); padding: 1.5rem; }
+        .section-card h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .empty-state { text-align: center; padding: 4rem; }
+        .empty-state i { font-size: 4rem; color: rgb(var(--border-dark)); margin-bottom: 1rem; }
+        .empty-state h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .empty-state p { color: rgb(var(--text-secondary)); margin-bottom: 1.5rem; }
+        .bookmarks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo"><i class="fas fa-graduation-cap"></i><span>AlgoLearn</span></a>
+            <div class="nav-links">
+                <a href="../index.html">Bosh sahifa</a>
+                <a href="../index.html#courses">Kurslar</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn btn-outline" onclick="AuthService.logout()"><i class="fas fa-sign-out-alt"></i> Chiqish</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <aside class="sidebar">
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/80?text=U" alt="User" class="user-avatar" id="userAvatar">
+                        <h3 class="user-name" id="userName">Foydalanuvchi</h3>
+                        <p class="user-email" id="userEmail">user@example.com</p>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="dashboard.html" class="sidebar-link"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <a href="bookmarks.html" class="sidebar-link active"><i class="fas fa-bookmark"></i> Sevimlilar</a>
+                        <a href="profile.html" class="sidebar-link"><i class="fas fa-user"></i> Profil</a>
+                        <a href="#" class="sidebar-link" onclick="AuthService.logout()"><i class="fas fa-sign-out-alt"></i> Chiqish</a>
+                    </nav>
+                </aside>
+
+                <main class="main-content">
+                    <div class="section-card">
+                        <h2><i class="fas fa-bookmark"></i> Sevimli kurslarim</h2>
+                        <div id="bookmarksList">
+                            <div class="empty-state">
+                                <i class="fas fa-bookmark"></i>
+                                <h3>Hozircha sevimli kurslar yo'q</h3>
+                                <p>Kurslarni saqlash uchun belgi tugmasini bosing</p>
+                                <a href="../index.html#courses" class="btn btn-primary">Kurslarni ko'rish</a>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            
+            // Update profile info
+            document.getElementById('userName').textContent = user.displayName || 'Foydalanuvchi';
+            document.getElementById('userEmail').textContent = user.email;
+            if (user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
+            }
+            
+            loadBookmarks(user.uid);
+        });
+
+        async function loadBookmarks(userId) {
+            try {
+                showLoading();
+                const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
+                const bookmarks = userDoc.data()?.bookmarks || [];
+                
+                if (bookmarks.length === 0) {
+                    hideLoading();
+                    return;
+                }
+                
+                const container = document.getElementById('bookmarksList');
+                container.innerHTML = '<div class="bookmarks-grid"></div>';
+                const grid = container.querySelector('.bookmarks-grid');
+                
+                for (const courseId of bookmarks) {
+                    const course = await CoursesService.getCourse(courseId);
+                    if (course) {
+                        grid.innerHTML += `
+                            <div class="course-card">
+                                <div class="course-thumbnail">
+                                    <img src="${course.thumbnail || 'https://via.placeholder.com/640x360?text=AlgoLearn'}" alt="${course.title}">
+                                    <button class="course-bookmark active" onclick="removeBookmark('${course.id}')">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
+                                </div>
+                                <div class="course-content">
+                                    <span class="course-category">${course.category || 'Dasturlash'}</span>
+                                    <h3 class="course-title">${course.title}</h3>
+                                    <a href="course.html?id=${course.id}" class="btn btn-primary btn-sm">Boshlash</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                hideLoading();
+            } catch (error) {
+                console.error('Load bookmarks error:', error);
+                hideLoading();
+            }
+        }
+
+        async function removeBookmark(courseId) {
+            try {
+                await CoursesService.toggleBookmark(courseId);
+                loadBookmarks(auth.currentUser.uid);
+            } catch (error) {
+                console.error('Remove bookmark error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

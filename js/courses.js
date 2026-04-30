@@ -7,15 +7,22 @@ const CoursesService = {
     subscribeToCourses(callback) {
         console.log('[REAL-TIME] Subscribing to courses...');
 
+        // Simple query without orderBy to avoid index issues
         const unsubscribe = db.collection(COLLECTIONS.COURSES)
             .where('isFree', '==', true)
-            .orderBy('createdAt', 'desc')
             .onSnapshot((snapshot) => {
-                const courses = snapshot.docs.map(doc => ({
+                let courses = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                     createdAt: doc.data().createdAt?.toDate()
                 }));
+
+                // Sort client-side
+                courses.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.getTime() : 0;
+                    const dateB = b.createdAt ? b.createdAt.getTime() : 0;
+                    return dateB - dateA;
+                });
 
                 this.coursesCache = courses;
                 console.log(`[REAL-TIME] Received ${courses.length} courses`);
@@ -30,11 +37,11 @@ const CoursesService = {
             }, (error) => {
                 console.error('[REAL-TIME] Subscription error:', error);
 
-                // Handle specific errors
                 if (error.code === 'failed-precondition') {
                     console.error('Firestore index required:', error.message);
                     showToast('Ma\'lumotlar bazasi sozlanmoqda', 'warning');
                 } else if (error.code === 'permission-denied') {
+                    console.error('Firestore permission denied:', error.message);
                     showToast('Ma\'lumotlarga ruxsat yo\'q', 'error');
                 }
             });
@@ -87,24 +94,10 @@ const CoursesService = {
         try {
             showLoading();
 
-            // Try complex query with filter and order
-            let snapshot;
-            try {
-                snapshot = await db.collection(COLLECTIONS.COURSES)
-                    .where('isFree', '==', true)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-            } catch (queryError) {
-                // If index or permission error, try simple query without orderBy
-                if (queryError.code === 'failed-precondition' || queryError.code === 'permission-denied') {
-                    console.warn('[Courses] Complex query failed, trying simple query...');
-                    snapshot = await db.collection(COLLECTIONS.COURSES)
-                        .where('isFree', '==', true)
-                        .get();
-                } else {
-                    throw queryError;
-                }
-            }
+            // Simple query without orderBy - index not required
+            const snapshot = await db.collection(COLLECTIONS.COURSES)
+                .where('isFree', '==', true)
+                .get();
 
             let courses = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -112,7 +105,7 @@ const CoursesService = {
                 createdAt: doc.data().createdAt?.toDate()
             }));
 
-            // Sort manually if we couldn't use orderBy
+            // Sort client-side
             courses.sort((a, b) => {
                 const dateA = a.createdAt ? a.createdAt.getTime() : 0;
                 const dateB = b.createdAt ? b.createdAt.getTime() : 0;
@@ -126,12 +119,8 @@ const CoursesService = {
             hideLoading();
             console.error('Get courses error:', error);
 
-            // Check for specific Firebase errors
-            if (error.code === 'failed-precondition') {
-                console.error('Firestore index required:', error.message);
-                showToast('Ma\'lumotlar bazasi sozlanmoqda', 'warning');
-            } else if (error.code === 'permission-denied') {
-                console.error('Firestore permission denied - deploy rules:', error.message);
+            if (error.code === 'permission-denied') {
+                console.error('Firestore permission denied:', error.message);
                 showToast('Ma\'lumotlarga ruxsat yo\'q. Iltimos, keyinroq urinib ko\'ring', 'error');
             } else {
                 showToast('Kurslarni yuklashda xatolik yuz berdi', 'error');
